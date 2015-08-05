@@ -4,7 +4,8 @@
   "description": "IRC bot made to do schreefy things.",
   "main": "schreef.js",
   "scripts": {
-    "start": "node schreef.js"
+    "start": "forever start -l /home/dppeppel/schreefBot/logs/server.log -a schreef.js",
+    "stop":  "forever stopall"
   },
   "keywords": [
     "irc",

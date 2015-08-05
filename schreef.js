@@ -31,15 +31,11 @@ var loadHandlers = function() {
 };
 
 var handleMessage = function(nick, to, text, message) {
-  if (_.startsWith(text, ':')) {
-    var command = text.split(' ', 1)[0];
-    var handler = handlerMap[command];
+  var command = text.split(' ', 1)[0];
+  var handler = handlerMap[command];
 
-    if (_.has(handlerMap, command)) {
-      handler(client, nick, to, text, message);
-    } else {
-      client.say(to, 'Unrecognized command.');
-    }
+  if (_.has(handlerMap, command)) {
+    handler(client, nick, to, text, message);
   }
 };
 

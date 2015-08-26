@@ -22,12 +22,12 @@ var phrases = [
 	"The complete darkness of the room just made me realize how drunk I am. and THAT was the real reality check"
 ];
 
-function randomFrom(collection) {
+function _randomFrom(collection) {
 	return collection[Math.floor(Math.random()*collection.length)];
 }
 
 function david(client, nick, to, text, message) {
-  client.say(to, 'David: ' + randomFrom(phrases));
+  client.say(to, 'David: ' + _randomFrom(phrases));
 };
 
 module.exports = {

@@ -31,11 +31,13 @@ var loadHandlers = function() {
 };
 
 var handleMessage = function(nick, to, text, message) {
-  var command = text.split(' ', 1)[0];
+  var args = text.split(' ', 2);
+  var command = args[0];
+  var params = args[1];
   var handler = handlerMap[command];
 
   if (_.has(handlerMap, command)) {
-    handler(client, nick, to, text, message);
+    handler(client, nick, to, text, message, params);
   }
 };
 

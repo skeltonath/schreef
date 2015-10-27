@@ -5,7 +5,7 @@
   "main": "schreef.js",
   "scripts": {
     "start": "forever start -l /home/dppeppel/schreefBot/logs/server.log -a schreef.js",
-    "stop":  "forever stopall"
+    "stop": "forever stopall"
   },
   "keywords": [
     "irc",
@@ -14,6 +14,7 @@
   "author": "David Peppel <skeltonath@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "http-request": "^0.7.0",
     "irc": "^0.3.12",
     "lodash": "^3.10.1"
   }

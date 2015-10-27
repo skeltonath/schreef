@@ -5,7 +5,7 @@
   "main": "schreef.js",
   "scripts": {
     "start": "forever start -l /home/dppeppel/schreefBot/logs/server.log -a schreef.js",
-    "stop":  "forever stopall"
+    "stop": "forever stopall"
   },
   "keywords": [
     "irc",

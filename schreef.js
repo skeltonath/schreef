@@ -7,7 +7,7 @@ var fs    = require('fs');
 var ircConfig = {
   server: 'grizzly.bearcopter.com',
   nick: 'Schreef',
-  channels: ['#bots', '#chat'],
+  channels: ['#bots', "#chat"],
   debug: true,
   showErrors: true,
   floodProtection: true,

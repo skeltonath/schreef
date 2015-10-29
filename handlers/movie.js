@@ -1,6 +1,9 @@
 var _       = require('lodash');
 var request = require('request');
 var format  = require('format');
+var log4js  = require('log4js');
+
+var LOG = log4js.getLogger('movie');
 
 /**
  * This module takes a string and inserts into
@@ -21,14 +24,14 @@ var omdbApiUrl = 'http://www.omdbapi.com/?i=tt%s&type=movie&plot=short';
  * the IRC channel or user.
  */
 function movie(client, nick, to, text, message, params) {
-  console.log(params);
+  LOG.info(format('Parameters: %s', params));
   getRandomImdbId(function(err, id) {
     if (!err) {
       request(format(omdbApiUrl, id), function(err, res, body) {
         if (!err && res.statusCode == 200) {
           var movie = JSON.parse(body);
-          client.say(to, replaceRandomWords(movie.Title, params, 1));
-          client.say(to, replaceRandomWords(movie.Plot, params));
+          client.say(to, replaceRandomWords(movie.Title, params.join(' '), 1));
+          client.say(to, replaceRandomWords(movie.Plot, params.join(' ')));
         } else {
           client.say(to, 'Error getting movie details');
         }

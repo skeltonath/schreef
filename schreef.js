@@ -1,14 +1,20 @@
-var _     = require('lodash');
-var irc   = require('irc');
-var path  = require('path');
-var fs    = require('fs');
+var _      = require('lodash');
+var irc    = require('irc');
+var path   = require('path');
+var fs     = require('fs');
+var log4js = require('log4js');
+var util   = require('util');
+
+// Configure log4js
+log4js.configure('config/log4js-config.json');
+var LOG = log4js.getLogger('main');
 
 // IRC client config
 var ircConfig = {
   server: 'grizzly.bearcopter.com',
   nick: 'Schreef',
   channels: ['#bots', "#chat"],
-  debug: true,
+  debug: false,
   showErrors: true,
   floodProtection: true,
   floodProtectionDelay: 500
@@ -26,18 +32,17 @@ var loadHandlers = function() {
   _.each(files, function(file) {
     handler = require('./handlers/' + file);
     handlerMap[handler.command] = handler.handler;
-    console.log('Loaded '+ handler.name);
+    LOG.info('Loaded ' + handler.name);
   });
 };
 
 var handleMessage = function(nick, to, text, message) {
-  var args = text.split(' ', 2);
-  var command = args[0];
-  var params = args[1];
-  var handler = handlerMap[command];
+  var args = text.split(' ');
+  var command = args.shift();
 
   if (_.has(handlerMap, command)) {
-    handler(client, nick, to, text, message, params);
+    var handler = handlerMap[command];
+    handler(client, nick, to, text, message, args);
   }
 };
 

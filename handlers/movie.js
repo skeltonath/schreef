@@ -24,14 +24,13 @@ var omdbApiUrl = 'http://www.omdbapi.com/?i=tt%s&type=movie&plot=short';
  * the IRC channel or user.
  */
 function movie(client, nick, to, text, message, params) {
-  LOG.info(format('Parameters: %s', params));
   getRandomImdbId(function(err, id) {
     if (!err) {
       request(format(omdbApiUrl, id), function(err, res, body) {
         if (!err && res.statusCode == 200) {
           var movie = JSON.parse(body);
-          client.say(to, replaceRandomWords(movie.Title, params.join(' '), 1));
-          client.say(to, replaceRandomWords(movie.Plot, params.join(' ')));
+          client.say(to, replaceRandomWords(movie.Title, params, 1));
+          client.say(to, replaceRandomWords(movie.Plot, params));
         } else {
           client.say(to, 'Error getting movie details');
         }

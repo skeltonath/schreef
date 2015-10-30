@@ -17,6 +17,8 @@ module.exports = {
 };
 
 function replay(client, nick, to, text, message, params, buffer) {
+  params = params.split(' ');
+
   if (params.length === 0) {
     client.say(to, 'Please provide number of messages to replay, less than 500');
     return;

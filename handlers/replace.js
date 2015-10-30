@@ -14,12 +14,12 @@ module.exports = {
 };
 
 function replace(client, nick, to, text, message, params, buffer) {
-  var strArray = params[0].split('|');
-  var targetStr = strArray[0];
-  var replaceStr = strArray[1];
+  var params = params.split('|');
+  var targetStr = params[0];
+  var replaceStr = params[1];
 
-  if (_.size(params) > 1) {
-    var targetNick = params[1];
+  if (_.size(params) > 2) {
+    var targetNick = params[2];
   }
 
   var targetMsg = _.find(buffer, function(message) {

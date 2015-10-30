@@ -52,7 +52,7 @@ var handleMessage = function(nick, to, text, message) {
   var buffer = _.get(messageBuffers, to, []);
 
   // if message is not a command, save it to buffer
-  if (text.charAt(0) !== COMMAND_CHAR) {
+  if (!_.startsWith(text, COMMAND_CHAR)) {
     var message = {
       nick: nick,
       text: text,
@@ -72,12 +72,13 @@ var handleMessage = function(nick, to, text, message) {
   }
 
   // handle command
-  var args = text.split(' ');
-  var command = args.shift();
+  var args = text.match(/^(:\w+) (.*)$/);
+  var command = args[1];
+  var params = args[2];
 
   if (_.has(handlerMap, command)) {
     var handler = handlerMap[command];
-    handler(client, nick, to, text, message, args, buffer);
+    handler(client, nick, to, text, message, params, buffer);
   }
 };
 

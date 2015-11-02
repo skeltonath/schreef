@@ -25,6 +25,7 @@
     "log4js": "^0.6.27",
     "moment": "^2.10.6",
     "moment-timezone": "^0.4.1",
+    "promise": "^7.0.4",
     "request": "^2.60.0"
   }
 }

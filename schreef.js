@@ -72,13 +72,14 @@ var handleMessage = function(nick, to, text, message) {
   }
 
   // handle command
-  var args = text.match(/^(:\w+) (.*)$/);
+  var args = text.match(/^(:\w+)\s*(.*)$/);
 
   if (!_.isNull(args)) {
     var command = args[1];
     var params = args[2];
 
     if (_.has(handlerMap, command)) {
+      LOG.info(format('Executing %s command', command));
       var handler = handlerMap[command];
       handler(client, nick, to, text, message, params, buffer);
     }

@@ -8,7 +8,6 @@ var format = require('format');
 // Configure log4js
 log4js.configure('config/log4js-config.json');
 var LOG = log4js.getLogger('main');
-LOG.setLevel('info');
 
 // Constants
 var SERVER = 'grizzly.bearcopter.com';

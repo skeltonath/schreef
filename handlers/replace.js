@@ -26,7 +26,7 @@ function replace(client, nick, to, text, message, params, buffer) {
     var isMatch = _.contains(message.text, targetStr);
 
     if (targetNick) {
-      isMatch = message.nick === targetNick;
+      isMatch = isMatch && message.nick === targetNick;
     }
     return isMatch;
   });

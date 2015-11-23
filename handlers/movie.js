@@ -32,11 +32,11 @@ function movie(client, nick, to, text, message, params) {
           client.say(to, replaceRandomWords(movie.Title, params, 1));
           client.say(to, replaceRandomWords(movie.Plot, params));
         } else {
-          client.say(to, 'Error getting movie details');
+          client.say(to, format('Error getting movie details: %s', err));
         }
       });
     } else {
-      client.say(to, 'Error getting random IMDB ID');
+      client.say(to, format('Error getting random IMDB ID: %s', err));
     }
   });
 }

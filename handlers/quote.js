@@ -1,5 +1,6 @@
 var _       = require('lodash');
 var request = require('request');
+var format  = require('format');
 var log4js  = require('log4js');
 
 var LOG = log4js.getLogger('quote');
@@ -69,7 +70,7 @@ function loadQuotes() {
       LOG.debug('Loaded quotes');
       _this.quotes = JSON.parse(body).result;
     } else {
-      LOG.error('Error loading quotes');
+      LOG.error(format('Error loading quotes: %s', err));
     }
   });
 }

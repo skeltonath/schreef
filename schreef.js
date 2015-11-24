@@ -11,8 +11,8 @@ var LOG = log4js.getLogger('main');
 
 // Constants
 var SERVER = 'grizzly.bearcopter.com';
-var NICK = 'Schreef1';
-var CHANS = ['#bots'];
+var NICK = 'Schreef';
+var CHANS = ['#bots', '#chat'];
 var MAX_BUFF_SIZE = 500;
 var COMMAND_CHAR = ':';
 

@@ -19,7 +19,13 @@ function replace(client, nick, to, text, message, params, buffer) {
   var replaceStr = params[1];
 
   if (_.size(params) > 2) {
-    var flags = params[2];
+    var flags = _.trim(params[2]);
+
+    if (flags.search(/^(g|i)(g|i)$/) === -1) {
+      client.say(to,
+        format('Invalid flags: %s. Only g (global) and i (ignore case) are allowed.', flags));
+      return;
+    }
   }
 
   if (_.size(params) > 3) {

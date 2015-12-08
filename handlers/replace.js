@@ -19,11 +19,22 @@ function replace(client, nick, to, text, message, params, buffer) {
   var replaceStr = params[1];
 
   if (_.size(params) > 2) {
-    var targetNick = params[2];
+    var flags = params[2];
+  }
+
+  if (_.size(params) > 3) {
+    var targetNick = params[3];
   }
 
   var targetMsg = _.find(buffer, function(message) {
-    var isMatch = _.contains(message.text, targetStr);
+    var text = message.text;
+
+    if (_.contains(flags, 'i')) {
+      text = text.toUpperCase();
+      targetStr = targetStr.toUpperCase();
+    }
+
+    var isMatch = _.contains(text, targetStr);
 
     if (targetNick) {
       isMatch = isMatch && message.nick === targetNick;
@@ -32,7 +43,8 @@ function replace(client, nick, to, text, message, params, buffer) {
   });
 
   if (targetMsg) {
-    var newMsg = targetMsg.text.replace(targetStr, replaceStr);
+    var re = new RegExp(targetStr, flags);
+    var newMsg = targetMsg.text.replace(re, replaceStr);
     client.say(to, format('%s meant to say: %s', targetMsg.nick, newMsg));
   } else {
     client.say(to, 'No messages containing that string found');

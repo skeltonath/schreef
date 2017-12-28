@@ -8,6 +8,6 @@ module.exports = {
   handler: hello
 };
 
-function hello(client, nick, to, text, message) {
-  client.say(to, 'Hello!');
+function hello(channel, message, params) {
+  channel.send('Hello!');
 };

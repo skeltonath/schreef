@@ -1,37 +1,25 @@
-var _      = require('lodash');
-var irc    = require('irc');
-var path   = require('path');
-var fs     = require('fs');
-var log4js = require('log4js');
-var format = require('format');
+const _       = require('lodash');
+const Discord = require('discord.js');
+const path    = require('path');
+const fs      = require('fs');
+const log4js  = require('log4js');
+const format  = require('format');
 
 // Configure log4js
 log4js.configure('config/log4js-config.json');
-var LOG = log4js.getLogger('main');
+const LOG = log4js.getLogger('main');
 
 // Constants
-var SERVER = 'grizzly.bearcopter.com';
-var NICK = 'Schreef';
-var CHANS = ['#bots', '#chat'];
-var MAX_BUFF_SIZE = 500;
-var COMMAND_CHAR = ':';
+const NICK = 'schreef';
+const COMMAND_CHAR = ':';
+const DISCORD_API_TOKEN = 'Mzk1NDcxNzk2NDQwMTM3NzI4.DSTXXw.QyrSqoLWEPWIVxpH1DWaalMRJYQ';
 
 
 // Fields
 var handlerMap = {};
-var messageBuffers = {};
-var ircConfig = {
-  server: SERVER,
-  nick: NICK,
-  channels: CHANS,
-  debug: false,
-  showErrors: true,
-  floodProtection: true,
-  floodProtectionDelay: 500
-};
 
 // Functions
-var loadHandlers = function() {
+function loadHandlers() {
   var handlerPath = path.join(__dirname, 'handlers');
   var files = _.filter(fs.readdirSync(handlerPath), function(fileName) {
     return _.endsWith(fileName, '.js');
@@ -44,34 +32,12 @@ var loadHandlers = function() {
   });
 };
 
-var handleMessage = function(nick, to, text, message) {
+function handleMessage(message) {
   // if message is from bot, skip
-  if (nick === NICK) return;
-
-  var buffer = _.get(messageBuffers, to, []);
-
-  // if message is not a command, save it to buffer
-  if (!_.startsWith(text, COMMAND_CHAR)) {
-    var message = {
-      nick: nick,
-      text: text,
-      timestamp: _.now()
-    };
-
-    var newLen = buffer.unshift(message);
-    if (newLen > MAX_BUFF_SIZE) {
-      buffer.pop();
-    }
-
-    messageBuffers[to] = buffer;
-    LOG.debug(format('Added message ({timestamp: %s, nick: %s, text: %s) to %s buffer',
-      message.timestamp, message.nick, message.text, to));
-
-    return;
-  }
+  if (message.author.id === client.user.id) return;
 
   // handle command
-  var args = text.match(/^(:\w+)\s*(.*)$/);
+  var args = message.content.match(/^(:\w+)\s*(.*)$/);
 
   if (!_.isNull(args)) {
     var command = args[1];
@@ -80,12 +46,18 @@ var handleMessage = function(nick, to, text, message) {
     if (_.has(handlerMap, command)) {
       LOG.info(format('Executing %s command', command));
       var handler = handlerMap[command];
-      handler(client, nick, to, text, message, params, buffer);
+      handler(message.channel, message, params);
     }
   }
 };
 
 // Load handlers, start client, add handlers
 loadHandlers();
-var client = new irc.Client(ircConfig.server, ircConfig.nick, ircConfig);
-client.addListener('message', handleMessage);
+const client = new Discord.Client();
+client.on('ready', () => {
+  console.log('I am ready!');
+});
+
+client.on('message', handleMessage);
+
+client.login(DISCORD_API_TOKEN);

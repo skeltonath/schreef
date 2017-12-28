@@ -4,7 +4,7 @@
   "description": "IRC bot made to do schreefy things.",
   "main": "schreef.js",
   "scripts": {
-    "start": "forever start -l /home/dppeppel/schreefBot/logs/server.log -a schreef.js",
+    "start": "forever start -l /home/dppeppel/schreef/logs/server.log -a schreef.js",
     "stop": "forever stopall"
   },
   "keywords": [
@@ -18,10 +18,10 @@
   },
   "license": "MIT",
   "dependencies": {
+    "discord.js": "11.2.1",
     "format": "^0.2.1",
     "http-request": "^0.7.0",
-    "irc": "^0.3.12",
-    "lodash": "^3.10.1",
+    "lodash": "4.17.4",
     "log4js": "^0.6.27",
     "moment": "^2.10.6",
     "moment-timezone": "^0.4.1",

@@ -1,6 +1,6 @@
 # Schreef
 
-A Schreefy IRC bot for doing Schreefy things. 
+A Schreefy Discord bot for doing Schreefy things. 
 
 # What does Schreef do?
 

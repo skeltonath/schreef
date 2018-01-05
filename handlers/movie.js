@@ -11,7 +11,7 @@ const LOG = log4js.getLogger('movie');
  */
 module.exports = {
   name: 'movie',
-  command: ':movie',
+  command: 'movie',
   handler: movie
 };
 
@@ -33,7 +33,7 @@ function movie(channel, message, params) {
         channl.send(format('Error getting movie details: %s', movie.Error));
       }
 
-      channel.send(replaceRandomWords(movie.Title, params, 1));
+      channel.send(format('%s [%s]', replaceRandomWords(movie.Title, params, 1), id));
       channel.send(replaceRandomWords(movie.Plot, params));
     } else {
       channel.send(format('Error getting movie details: %s', err));
@@ -50,17 +50,17 @@ function getRandomImdbId() {
 }
 
 function replaceRandomWords(str, replaceStr, numToReplace) {
-  var strArray = str.split(' ');
+  let strArray = str.split(' ');
 
   if (!numToReplace) {
-    numToReplace = getRandomInt(1, strArray.length / 4);
+    numToReplace = _.random(1, strArray.length / 4);
   }
 
   if (strArray.length == 1) {
     strArray.push(replaceStr);
   } else {
-    for (var i = 0; i < numToReplace; i++) {
-      var index = getRandomInt(0, strArray.length);
+    for (let i = 0; i < numToReplace; i++) {
+      let index = _.random(0, strArray.length);
       if (strArray[index + 1] !== replaceStr &&
           strArray[index - 1] !== replaceStr &&
           strArray[index] !== replaceStr) {
@@ -73,7 +73,3 @@ function replaceRandomWords(str, replaceStr, numToReplace) {
   return strArray.join(' ');
 }
 
-// Returns a random integer between min (included) and max (excluded)
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}

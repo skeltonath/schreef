@@ -10,18 +10,15 @@ log4js.configure('config/log4js-config.json');
 const LOG = log4js.getLogger('main');
 
 // Constants
-const NICK = 'schreef';
-const COMMAND_CHAR = ':';
 const DISCORD_API_TOKEN = 'Mzk1NDcxNzk2NDQwMTM3NzI4.DSTXXw.QyrSqoLWEPWIVxpH1DWaalMRJYQ';
 
-
 // Fields
-var handlerMap = {};
+const handlerMap = {};
 
 // Functions
 function loadHandlers() {
-  var handlerPath = path.join(__dirname, 'handlers');
-  var files = _.filter(fs.readdirSync(handlerPath), function(fileName) {
+  const handlerPath = path.join(__dirname, 'handlers');
+  const files = _.filter(fs.readdirSync(handlerPath), function(fileName) {
     return _.endsWith(fileName, '.js');
   });
 
@@ -37,7 +34,7 @@ function handleMessage(message) {
   if (message.author.id === client.user.id) return;
 
   // handle command
-  var args = message.content.match(/^(:\w+)\s*(.*)$/);
+  var args = message.content.match(/^\.(\w+)\s*(.*)$/);
 
   if (!_.isNull(args)) {
     var command = args[1];
@@ -55,9 +52,8 @@ function handleMessage(message) {
 loadHandlers();
 const client = new Discord.Client();
 client.on('ready', () => {
-  console.log('I am ready!');
+  LOG.info('schreef online!');
 });
 
 client.on('message', handleMessage);
-
 client.login(DISCORD_API_TOKEN);

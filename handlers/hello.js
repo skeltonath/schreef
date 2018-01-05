@@ -4,7 +4,7 @@
 
 module.exports = {
   name: 'hello',
-  command: ':hello',
+  command: 'hello',
   handler: hello
 };
 

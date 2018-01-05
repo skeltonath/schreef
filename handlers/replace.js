@@ -58,17 +58,9 @@ function replace(channel, message, params) {
 function findMatchingMessage(messages, target, flags, targetUser) {
   return messages.find(message => {
     let content = message.content;
-
     if (content.startsWith('.')) return false;
-
+    if (targetUser && message.author.username !== targetUser) return false;
     if (flags.includes('i')) content = content.toLowerCase();
-
-    let isMatch = message.content.includes(target);
-
-    if (targetUser) {
-      isMatch = isMatch && message.author.username === targetUser
-    }
-
-    return isMatch;
+    return content.includes(target);
   });
 }

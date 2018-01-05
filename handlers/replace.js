@@ -1,25 +1,27 @@
-var _      = require('lodash');
-var log4js = require('log4js');
-var format = require('format');
+const _      = require('lodash');
+const log4js = require('log4js');
+const format = require('format');
 
-var LOG = log4js.getLogger('replace');
+const LOG = log4js.getLogger('replace');
 
 /**
  * This module replaces text in a previous message.
  */
 module.exports = {
   name: 'replace',
-  command: ':r',
+  command: 'r',
   handler: replace
 };
 
-function replace(client, nick, to, text, message, params, buffer) {
-  var params = params.split('|');
-  var targetStr = params[0];
-  var replaceStr = params[1];
+function replace(channel, message, params) {
+  params = params.split('/');
+  let targetStr = params[0];
+  let replaceStr = params[1];
+  let flags = [];
+  let targetUser = '';
 
-  if (_.size(params) > 2) {
-    var flags = _.trim(params[2]).toLowerCase();
+  if (params.length > 2) {
+    flags = params[2].trim().toLowerCase();
 
     if (flags.search(/^(g|i|gi|ig)?$/) === -1) {
       client.say(to,
@@ -28,31 +30,45 @@ function replace(client, nick, to, text, message, params, buffer) {
     }
   }
 
-  if (_.size(params) > 3) {
-    var targetNick = params[3];
+  if (params.length > 3) {
+    targetUser = params[3];
   }
 
-  var targetMsg = _.find(buffer, function(message) {
-    var text = message.text;
+  if (flags.includes('i')) {
+    targetStr = targetStr.toLowerCase();
+  }
 
-    if (_.contains(flags, 'i')) {
-      text = text.toUpperCase();
-      targetStr = targetStr.toUpperCase();
+  channel.fetchMessages({ before: message.id })
+    .then(messages => {
+      let targetMessage = findMatchingMessage(messages, targetStr, flags, targetUser);
+      if (targetMessage) {
+        let re = new RegExp(targetStr, flags);
+        let newMessage = targetMessage.content.replace(re, replaceStr);
+        channel.send(format('%s meant to say: %s', targetMessage.author.username, newMessage));
+      } else {
+        channel.send('No messages containing that string found');
+      }
+    })
+    .catch(error => {
+      LOG.error(error);
+      channel.send('Error getting messages for channel');
+    });
+}
+
+function findMatchingMessage(messages, target, flags, targetUser) {
+  return messages.find(message => {
+    let content = message.content;
+
+    if (content.startsWith('.')) return false;
+
+    if (flags.includes('i')) content = content.toLowerCase();
+
+    let isMatch = message.content.includes(target);
+
+    if (targetUser) {
+      isMatch = isMatch && message.author.username === targetUser
     }
 
-    var isMatch = _.contains(text, targetStr);
-
-    if (targetNick) {
-      isMatch = isMatch && message.nick === targetNick;
-    }
     return isMatch;
   });
-
-  if (targetMsg) {
-    var re = new RegExp(targetStr, flags);
-    var newMsg = targetMsg.text.replace(re, replaceStr);
-    client.say(to, format('%s meant to say: %s', targetMsg.nick, newMsg));
-  } else {
-    client.say(to, 'No messages containing that string found');
-  }
 }

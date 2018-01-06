@@ -1,5 +1,7 @@
 const _       = require('lodash');
 const request = require('request');
+const rp      = require('request-promise');
+const cheerio = require('cheerio');
 const format  = require('format');
 const log4js  = require('log4js');
 
@@ -15,38 +17,79 @@ module.exports = {
   handler: movie
 };
 
-const randomImdbUrl = 'http://www.imdb.com/random/title';
-const omdbApiUrl = 'http://www.omdbapi.com/?i=tt%s&type=movie&plot=short&apikey=753dbccc';
+const IMDB_URL = 'http://www.imdb.com/chart/moviemeter';
+const OMDB_URL = 'http://www.omdbapi.com';
+const IMDB_ID_REGEX = /tt(\d+)/;
+let CACHED_IMDB_IDS = [];
 
 /**
  * Replaces words in a random popular IMBD title
  * with a given string and sends the results to
  * the IRC channel or user.
  */
-function movie(channel, message, params) {
-  let id = getRandomImdbId();
-  request(format(omdbApiUrl, id), function(err, res, body) {
-    if (!err && res.statusCode == 200) {
-      let movie = JSON.parse(body);
+async function movie(channel, message, params) {
+  if (_.isEmpty(CACHED_IMDB_IDS)) {
+    LOG.info('IMDB ID cache is empty, populating cache');
+    CACHED_IMDB_IDS = await getImdbIds();
+  }
 
+  let id = _.sample(CACHED_IMDB_IDS);
+  let options = {
+    uri: OMDB_URL,
+    qs: {
+      i: 'tt' + id,
+      type: 'movie',
+      plot: 'short',
+      apikey: '753dbccc'
+    },
+    json: true
+  };
+
+  rp.get(options)
+    .then(movie => {
       if (movie.Error) {
-        channl.send(format('Error getting movie details: %s', movie.Error));
+        let errorMsg = format('Error getting move details from OMBD: %s', movie.Error);
+        channel.send(errorMsg);
+        LOG.error(errorMsg);
+        return;
       }
 
       channel.send(format('%s [%s]', replaceRandomWords(movie.Title, params, 1), id));
       channel.send(replaceRandomWords(movie.Plot, params));
-    } else {
-      channel.send(format('Error getting movie details: %s', err));
-    }
-  });
+    })
+    .catch(err => {
+      let errorMsg = format('Error getting move details from OMBD: %s', movie.Error);
+      channel.send(errorMsg);
+      LOG.error(errorMsg);
+    });
 }
 
 /**
  * Gets a random IMDB ID.
  */
-function getRandomImdbId() {
-  let id = Math.floor(Math.random() * 2155529 + 1);
-  return _.padStart(id, 7, '0');
+function getImdbIds() {
+  let options = {
+    url: IMDB_URL,
+    transform: cheerio.load
+  };
+
+  return new Promise((resolve, reject) => {
+    rp.get(options)
+      .then($ => {
+        let ids = $('.titleColumn')
+          .find('a')
+          .map((i, el) => {
+            let href = $(el).attr('href');
+            return IMDB_ID_REGEX.exec(href)[1]
+          })
+          .get();
+        resolve(ids);
+      })
+      .catch(err => {
+        LOG.error(err);
+        reject(err);
+      });
+  });
 }
 
 function replaceRandomWords(str, replaceStr, numToReplace) {

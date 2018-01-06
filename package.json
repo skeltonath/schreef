@@ -21,6 +21,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "discord.js": "11.2.1",
+    "dotenv": "^4.0.0",
     "format": "^0.2.1",
     "http-request": "^0.7.0",
     "lodash": "4.17.4",

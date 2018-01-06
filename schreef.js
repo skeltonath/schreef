@@ -5,12 +5,12 @@ const fs      = require('fs');
 const log4js  = require('log4js');
 const format  = require('format');
 
+// configure env
+require('dotenv').config();
+
 // Configure log4js
 log4js.configure('config/log4js-config.json');
 const LOG = log4js.getLogger('main');
-
-// Constants
-const DISCORD_API_TOKEN = 'Mzk1NDcxNzk2NDQwMTM3NzI4.DSTXXw.QyrSqoLWEPWIVxpH1DWaalMRJYQ';
 
 // Fields
 const handlerMap = {};
@@ -56,4 +56,4 @@ client.on('ready', () => {
 });
 
 client.on('message', handleMessage);
-client.login(DISCORD_API_TOKEN);
+client.login(process.env.DISCORD_API_KEY);

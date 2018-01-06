@@ -20,6 +20,7 @@ module.exports = {
 const IMDB_URL = 'http://www.imdb.com/chart/moviemeter';
 const OMDB_URL = 'http://www.omdbapi.com';
 const IMDB_ID_REGEX = /tt(\d+)/;
+const OMDB_API_KEY = process.env.OMDB_API_KEY;
 let CACHED_IMDB_IDS = [];
 
 /**
@@ -40,7 +41,7 @@ async function movie(channel, message, params) {
       i: 'tt' + id,
       type: 'movie',
       plot: 'short',
-      apikey: '753dbccc'
+      apikey: OMDB_API_KEY
     },
     json: true
   };

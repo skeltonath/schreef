@@ -4,9 +4,7 @@
   "description": "Discord bot made to do schreefy things.",
   "main": "schreef.js",
   "scripts": {
-    "start": "pm2 start schreef.js --name=\"schreef\"",
-    "stop": "pm2 stop schreef",
-    "restart": "pm2 restart schreef"
+    "start": "node schreef.js"
   },
   "keywords": [
     "discord",

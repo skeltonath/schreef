@@ -1,15 +1,15 @@
 {
   "name": "schreef-bot",
   "version": "1.0.0",
-  "description": "IRC bot made to do schreefy things.",
+  "description": "Discord bot made to do schreefy things.",
   "main": "schreef.js",
   "scripts": {
-    "start": "forever start -l /home/dppeppel/schreef/logs/server.log -a schreef.js",
-    "stop": "forever stopall",
-    "restart": "yarn stop && yarn start"
+    "start": "pm2 start schreef.js --name=\"schreef\"",
+    "stop": "pm2 stop schreef",
+    "restart": "pm2 restart schreef"
   },
   "keywords": [
-    "irc",
+    "discord",
     "bot"
   ],
   "author": "David Peppel <skeltonath@gmail.com>",

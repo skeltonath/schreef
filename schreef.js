@@ -5,6 +5,7 @@ const fs      = require('fs');
 const log4js  = require('log4js');
 const format  = require('format');
 const express = require('express');
+const http    = require('http');
 
 // configure express
 const app = express();

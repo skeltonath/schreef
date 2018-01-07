@@ -4,6 +4,15 @@ const path    = require('path');
 const fs      = require('fs');
 const log4js  = require('log4js');
 const format  = require('format');
+const express = require('express');
+
+// configure express
+const app = express();
+const port = process.env.PORT || 5000;
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
+app.get('/', (req, res) => res.render('index'));
+app.listen(port);
 
 // configure env
 require('dotenv').config();
@@ -57,3 +66,8 @@ client.on('ready', () => {
 
 client.on('message', handleMessage);
 client.login(process.env.DISCORD_API_KEY);
+
+// ping server to keep it awake on heroku
+setInterval(() => {
+  http.get('http://schreef.herokuapp.com');
+}, 90000);

@@ -23,6 +23,22 @@ const IMDB_ID_REGEX = /tt(\d+)/;
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
 let CACHED_IMDB_IDS = [];
 
+const NO_REPLACE_WORDS = [
+  'a',        'an',     'the',        'some',
+  'of',       'with',   'at',         'from',
+  'into',     'during', 'including',  'until',
+  'against',  'among',  'throughout', 'despite',
+  'towards',  'upon',   'concerning', 'to',
+  'in',       'for',    'on',         'by',
+  'about',    'like',   'through',    'over',
+  'before',   'between','after',      'since',
+  'without',  'under',  'within',     'along',
+  'following','across', 'behind',     'beyond',
+  'plus',     'except', 'but',        'up',
+  'out',      'around', 'down',       'off',
+  'above',    'near'
+];
+
 /**
  * Replaces words in a random popular IMBD title
  * with a given string and sends the results to
@@ -107,7 +123,8 @@ function replaceRandomWords(str, replaceStr, numToReplace) {
       let index = _.random(0, strArray.length);
       if (strArray[index + 1] !== replaceStr &&
           strArray[index - 1] !== replaceStr &&
-          strArray[index] !== replaceStr) {
+          strArray[index] !== replaceStr &&
+          !NO_REPLACE_WORDS.includes(strArray[index].toLowerCase())) {
         strArray[index] = replaceStr;
       } else {
         i--;

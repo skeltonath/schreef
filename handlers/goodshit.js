@@ -1,8 +1,8 @@
-var _      = require('lodash');
-var log4js = require('log4js');
-var format = require('format');
+let _      = require('lodash');
+let log4js = require('log4js');
+let format = require('format');
 
-var LOG = log4js.getLogger('goodshit');
+let LOG = log4js.getLogger('goodshit');
 
 module.exports = {
   name: 'goodshit',
@@ -10,7 +10,7 @@ module.exports = {
   handler: goodshit
 };
 
-var GOOD_SHIT_ARRAY = [
+let GOOD_SHIT_ARRAY = [
   'good shit',
   '(chorus: ʳᶦᵍʰᵗ ᵗʰᵉʳᵉ)',
   'go౦ԁ sHit',
@@ -36,23 +36,22 @@ var GOOD_SHIT_ARRAY = [
   ];
 
 function goodshit(channel, message, params) {
-  LOG.info(params);
-  var msg = params;
-  var msgText = 'good shit good shit good shit';
+  let msg = params;
+  let msgText = 'good shit good shit good shit';
 
   if (!_.isNull(msg)) {
     msgText = msg;
   }
 
-  var words = _.words(msgText,  /[^, ]+/g);
+  let words = _.words(msgText,  /[^, ]+/g);
 
-  var newWords = [];
+  let newWords = [];
   _.each(words, function(word) {
-    var goodshitBefore = _.random(0, 3);
-    var goodshitAfter = _.random(0, 3);
+    let goodshitBefore = _.random(0, 3);
+    let goodshitAfter = _.random(0, 3);
 
     _.each(_.range(goodshitBefore), function() {
-      var goodshitText = _.sample(GOOD_SHIT_ARRAY);
+      let goodshitText = _.sample(GOOD_SHIT_ARRAY);
       newWords.push(goodshitText);
     });
 
@@ -60,11 +59,11 @@ function goodshit(channel, message, params) {
     newWords.push('👌');
 
     _.each(_.range(goodshitAfter), function() {
-      var goodshitText = _.sample(GOOD_SHIT_ARRAY);
+      let goodshitText = _.sample(GOOD_SHIT_ARRAY);
       newWords.push(goodshitText);
     });
   });
 
-  var newText = newWords.join(' ');
+  let newText = newWords.join(' ');
   channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

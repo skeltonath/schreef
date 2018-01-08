@@ -6,7 +6,7 @@ var LOG = log4js.getLogger('goodshit');
 
 module.exports = {
   name: 'goodshit',
-  command: ':gs',
+  command: 'gs',
   handler: goodshit
 };
 
@@ -18,23 +18,38 @@ var GOOD_SHIT_ARRAY = [
   '👌',
   '✔',
   'if i do ƽaү so my self',
-  'Good shit'
-];
+  'Good shit',
+  '👌👀👌👀',
+  '👀',
+  '💯',
+  '💯 💯',
+  'good ✔',
+  'right✔there',
+  'right👌there',
+  'mMMMMᎷМ',
+  '🍕🍅🍕🍅 ',
+  'sign me the fuck up',
+  'oh👌fuck👌',
+  'oh👌shit👌',
+  'fuck👌yes👌',
+  '(socrates died for real)'
+  ];
 
-function goodshit(client, nick, to, text, message, params, buffer) {
-  var msg = _.sample(buffer);
+function goodshit(channel, message, params) {
+  LOG.info(params);
+  var msg = params;
   var msgText = 'good shit good shit good shit';
 
   if (!_.isNull(msg)) {
-    msgText = msg.text;
+    msgText = msg;
   }
 
   var words = _.words(msgText,  /[^, ]+/g);
 
   var newWords = [];
   _.each(words, function(word) {
-    var goodshitBefore = _.random(0, 5);
-    var goodshitAfter = _.random(0, 5);
+    var goodshitBefore = _.random(0, 3);
+    var goodshitAfter = _.random(0, 3);
 
     _.each(_.range(goodshitBefore), function() {
       var goodshitText = _.sample(GOOD_SHIT_ARRAY);
@@ -51,5 +66,5 @@ function goodshit(client, nick, to, text, message, params, buffer) {
   });
 
   var newText = newWords.join(' ');
-  client.say(to, newText);
+  channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

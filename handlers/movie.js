@@ -80,8 +80,8 @@ async function movie(channel, message, params) {
         return;
       }
 
-      channel.send(format('%s [%s]', replaceRandomWords(movie.Title, params, 1), id));
-      channel.send(replaceRandomWords(movie.Plot, params));
+      channel.send(replaceRandomWords(movie.Title, params, 1));
+      channel.send(replaceRandomWords(movie.Plot, _.capitalize(params)));
     })
     .catch(err => {
       let errorMsg = format('Error getting move details from OMBD: %s', err);
@@ -126,7 +126,7 @@ function replaceRandomWords(str, replaceStr, numToReplace) {
   }
 
   if (words.length === 1) {
-    return _.replace(str, words[0], `${words[0]} ${_.capitalize(replaceStr)}`);
+    return _.replace(str, words[0], `${words[0]} ${replaceStr}`);
   }
 
   let replacedWordIndexes = [];

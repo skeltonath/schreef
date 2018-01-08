@@ -17,6 +17,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "azure-storage": "^2.7.0",
     "cheerio": "^1.0.0-rc.2",
     "discord.js": "11.2.1",
     "dotenv": "^4.0.0",

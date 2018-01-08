@@ -22,11 +22,8 @@ module.exports = {
 
 function stock(channel, message, params) {
 
-    // Wont work unless the following environment variables are set:
-    // AZURE_STORAGE_CONNECTION_STRING
-
     // Initialize table service
-    const tableSvc = azure.createTableService();
+    const tableSvc = azure.createTableService(process.env.AZURE_STORAGE_CONNECTION_STRING);
     let splitParams = params.split(' ');
 
     // Verify the Azure Storage Table exists and create if it doesn't
@@ -49,17 +46,6 @@ function stock(channel, message, params) {
         })
     });
 
-    /*
-    for (let member of channel.guild.members.array()) {
-        getStock(tableSvc, member.user.username, function (callback) {
-            if (typeof callback != 'number') {
-                LOG.info('Setting up new $chreef $tock account for ' + member.user.username);
-                updateUser(tableSvc, member.user.username, STARTINGSTOCK);
-            }
-        })
-    }
-    */
-
     if (splitParams[0] === 'help') {
         channel.send('Command Usage:' + '\n' +
             '.reset - Resets you back to 1000$$' + '\n' +
@@ -76,7 +62,7 @@ function stock(channel, message, params) {
     // Get the stock for that user
     if (splitParams[0] === 'balance') {
         getStock(tableSvc, message.author.username, function (callback) {
-            channel.send('${message.author.username}\'s balance is ${callback}$$');
+            channel.send(`${message.author.username}\'s balance is ${callback}$$`);
         });
     }
 
@@ -103,8 +89,8 @@ function stock(channel, message, params) {
                             updateUser(tableSvc, message.author.username, newSenderTotal);
                             updateUser(tableSvc, recipient, newReceiverTotal);
 
-                            transactionString += message.author.username + ': ' + senderStock + ' - ' + sendAmount + ' = ' + newSenderTotal + '\n' +
-                                recipient + ': ' + receiverStock + ' + ' + sendAmount + ' = ' + newReceiverTotal;
+                            transactionString += `${message.author.username}: ${senderStock} - ${sendAmount} = ${newSenderTotal}\n
+                                                  ${recipient}: ${receiverStock} + ${sendAmount} = ${newReceiverTotal}`
 
                             LOG.info(transactionString);
                             channel.send(transactionString);
@@ -154,10 +140,10 @@ function showAllStock(tableSvc, channel) {
         if (!error) {
             // query successful
             for (let i = 0, len = result.entries.length; i < len; i++) {
-                let line = result.entries[i].PartitionKey._ + ' has ' + result.entries[i].schreefstock._ + '$$';
-                displayResult = displayResult + '\n' + line;
+                let line = `${result.entries[i].PartitionKey._} has ${result.entries[i].schreefstock._}$$`;
+                displayResult = `${displayResult}\n${line}`;
             }
-            displayResult = displayResult + '\n' + 'schreef has an infinite amount of stock';
+            displayResult = `${displayResult}\nschreef has an infinite amount of stock`;
 
             channel.send(displayResult);
         }

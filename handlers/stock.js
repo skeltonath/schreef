@@ -57,6 +57,7 @@ function stock(channel, message, params) {
     // Reset command to go back to starting stock
     if (splitParams[0] === 'reset') {
         updateUser(tableSvc, message.author.username, STARTINGSTOCK);
+        LOG.info(`${message.author.username} reset his $$ account to starting value:${STARTINGSTOCK}`);
     }
 
     // Get the stock for that user
@@ -77,22 +78,22 @@ function stock(channel, message, params) {
         const sendAmount = parseInt(splitParams[2]);
 
         if (recipient !== message.author.username) {
-            getStock(tableSvc, recipient, function (receiverStock) {
+            getStock(tableSvc, recipient, function (error, receiverStock, response) {
                 if (typeof receiverStock === 'number') {
-                    getStock(tableSvc, message.author.username, function (senderStock) {
+                    getStock(tableSvc, message.author.username, function (error, senderStock, response) {
                         if ((senderStock - sendAmount) > 0 && typeof senderStock === 'number') {
 
                             const newSenderTotal = senderStock - sendAmount;
                             const newReceiverTotal = receiverStock + sendAmount;
                             let transactionString = 'Transaction Complete:' + '\n';
+                            let transactionLog = `${message.author.username} sent ${recipient} ${sendAmount}$$`;
 
                             updateUser(tableSvc, message.author.username, newSenderTotal);
                             updateUser(tableSvc, recipient, newReceiverTotal);
 
-                            transactionString += `${message.author.username}: ${senderStock} - ${sendAmount} = ${newSenderTotal}\n
-                                                  ${recipient}: ${receiverStock} + ${sendAmount} = ${newReceiverTotal}`
+                            transactionString += `${message.author.username}: ${senderStock} - ${sendAmount} = ${newSenderTotal}\n${recipient}: ${receiverStock} + ${sendAmount} = ${newReceiverTotal}`
 
-                            LOG.info(transactionString);
+                            LOG.info(transactionLog);
                             channel.send(transactionString);
                         }
                         else {

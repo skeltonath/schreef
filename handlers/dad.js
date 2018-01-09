@@ -1,15 +1,11 @@
-const _       = require('lodash');
-const request = require('request');
 const rp      = require('request-promise');
-const cheerio = require('cheerio');
-const format  = require('format');
 const log4js  = require('log4js');
 
 const LOG = log4js.getLogger('dad');
 
 /**
- * This module takes a string and inserts into
- * a movie title and description.
+ * Retrieving a random dad joke from https://icanhazdadjoke.com/
+ * via their public API
  */
 module.exports = {
   name: 'dad',
@@ -17,17 +13,26 @@ module.exports = {
   handler: dad
 };
 
-const DAD_URL = 'https://icanhazdadjoke.com/';
+const DAD_API = 'https://icanhazdadjoke.com/';
 
-async function dad(channel, message, params) {
+function dad(channel, message, params) {
 
 let options = {
-    uri: DAD_URL,
+    uri: DAD_API,
     json: true
   };
 
   rp.get(options)
     .then(joke => {
-      channel.send(joke.joke);
+      if(joke.joke){
+        channel.send(joke.joke);
+      } else {
+        LOG.error(joke);
+        channel.send('Error receiving joke from Dad Central Station');
+      }
+    })
+    .catch(err =>{
+      LOG.error(err);
+      channel.send('Error receiving joke from Dad Central Station');
     });
 }

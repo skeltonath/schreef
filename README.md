@@ -6,7 +6,7 @@ A Schreefy Discord bot for doing Schreefy things.
 
 # Installation
 
-Schreef uses the [yarn package manager](https://yarnpkg.com/en/) to managed dependencies.
+Schreef uses the [yarn package manager](https://yarnpkg.com/en/) to manage dependencies.
 
 Once yarn is installed, install schreef's dependencies with
 

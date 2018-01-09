@@ -44,7 +44,7 @@ function replace(channel, message, params) {
       if (targetMessage) {
         let re = new RegExp(targetStr, flags);
         let newMessage = targetMessage.content.replace(re, replaceStr);
-        channel.send(format('%s meant to say: %s', targetMessage.author.username, newMessage));
+        channel.send(format('%s ***meant*** to say: %s', targetMessage.author.username, newMessage));
       } else {
         channel.send('No messages containing that string found');
       }

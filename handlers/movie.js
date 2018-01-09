@@ -23,6 +23,31 @@ const IMDB_ID_REGEX = /tt(\d+)/;
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
 let CACHED_IMDB_IDS = [];
 
+const NO_REPLACE_WORDS = [
+  'a',        'an',     'the',        'some',
+  'of',       'with',   'at',         'from',
+  'into',     'during', 'including',  'until',
+  'against',  'among',  'throughout', 'despite',
+  'towards',  'upon',   'concerning', 'to',
+  'in',       'for',    'on',         'by',
+  'about',    'like',   'through',    'over',
+  'before',   'between','after',      'since',
+  'without',  'under',  'within',     'along',
+  'following','across', 'behind',     'beyond',
+  'plus',     'except', 'but',        'up',
+  'out',      'around', 'down',       'off',
+  'above',    'near',   'and',        'that',
+  'or',       'as',     'if',         'when',
+  'because',  'than',   'while',      'where',
+  'after',    'so',     'though',     'since',
+  'until',    'unless', 'although',   'whether',
+  'nor'
+];
+
+const WORD_ENDINGS = [
+  'ing', 'ed', '\'s'
+];
+
 /**
  * Replaces words in a random popular IMBD title
  * with a given string and sends the results to
@@ -55,11 +80,11 @@ async function movie(channel, message, params) {
         return;
       }
 
-      channel.send(format('%s [%s]', replaceRandomWords(movie.Title, params, 1), id));
+      channel.send(replaceRandomWords(movie.Title, _.startCase(_.toLower(params)), 1));
       channel.send(replaceRandomWords(movie.Plot, params));
     })
     .catch(err => {
-      let errorMsg = format('Error getting move details from OMBD: %s', movie.Error);
+      let errorMsg = format('Error getting move details from OMBD: %s', err);
       channel.send(errorMsg);
       LOG.error(errorMsg);
     });
@@ -94,26 +119,33 @@ function getImdbIds() {
 }
 
 function replaceRandomWords(str, replaceStr, numToReplace) {
-  let strArray = str.split(' ');
+  let words = _.words(str);
 
   if (!numToReplace) {
-    numToReplace = _.random(1, strArray.length / 4);
+    numToReplace = _.random(1, words.length / 4);
   }
 
-  if (strArray.length == 1) {
-    strArray.push(replaceStr);
-  } else {
-    for (let i = 0; i < numToReplace; i++) {
-      let index = _.random(0, strArray.length);
-      if (strArray[index + 1] !== replaceStr &&
-          strArray[index - 1] !== replaceStr &&
-          strArray[index] !== replaceStr) {
-        strArray[index] = replaceStr;
-      } else {
-        i--;
-      }
+  if (words.length === 1) {
+    return _.replace(str, words[0], `${words[0]} ${replaceStr}`);
+  }
+
+  let replacedWordIndexes = [];
+
+  for (let i = 0; i < numToReplace; i++) {
+    let index = _.random(0, words.length - 1);
+    let word = words[index];
+    if (!replacedWordIndexes.includes(index + 1) &&
+        !replacedWordIndexes.includes(index - 1) &&
+        !replacedWordIndexes.includes(index) &&
+        !NO_REPLACE_WORDS.includes(word.toLowerCase())) {
+      let wordEnding = WORD_ENDINGS.find(wordEnding => word.endsWith(wordEnding)) || '';
+      str = _.replace(str, word, replaceStr + wordEnding);
+      replacedWordIndexes.push(index);
+    } else {
+      i--;
     }
   }
-  return strArray.join(' ');
+
+  return str;
 }
 

@@ -4,7 +4,8 @@
   "description": "Discord bot made to do schreefy things.",
   "main": "schreef.js",
   "scripts": {
-    "start": "node schreef.js"
+    "start": "node schreef.js",
+    "lint": "./node_modules/.bin/eslint --ignore-path .gitignore ."
   },
   "keywords": [
     "discord",
@@ -32,5 +33,10 @@
     "promise": "^7.0.4",
     "request": "^2.60.0",
     "request-promise": "^4.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
   }
 }

@@ -38,12 +38,12 @@ function stock(channel, message, params) {
 
     // Verify all users have an account and create new ones for those that don't
     channel.guild.members.forEach(member => {
-        getStock(tableSvc, member.user.username, function (callback) {
-            if (typeof callback !== 'number') {
+        getStock(tableSvc, member.user.username, function (error, result, response) {
+            if (typeof result !== 'number') {
                 LOG.info('Setting up new $chreef $tock account for ' + member.user.username);
                 updateUser(tableSvc, member.user.username, STARTINGSTOCK);
             }
-        })
+        });
     });
 
     if (splitParams[0] === 'help') {
@@ -61,8 +61,8 @@ function stock(channel, message, params) {
 
     // Get the stock for that user
     if (splitParams[0] === 'balance') {
-        getStock(tableSvc, message.author.username, function (callback) {
-            channel.send(`${message.author.username}\'s balance is ${callback}$$`);
+        getStock(tableSvc, message.author.username, function (error, result, response) {
+            channel.send(`${message.author.username}\'s balance is ${result}$$`);
         });
     }
 
@@ -98,12 +98,12 @@ function stock(channel, message, params) {
                         else {
                             channel.send('Not enough stock to make the transaction.')
                         }
-                    })
+                    });
                 }
                 else {
                     channel.send('That user does not exist! Schreef won\'t throw his stock to the abyss.');
                 }
-            })
+            });
         }
         else {
             channel.send('You can\'t send yourself stock here.');
@@ -139,10 +139,11 @@ function showAllStock(tableSvc, channel) {
     tableSvc.queryEntities(TABLENAME, query, null, function (error, result, response) {
         if (!error) {
             // query successful
-            for (let i = 0, len = result.entries.length; i < len; i++) {
-                let line = `${result.entries[i].PartitionKey._} has ${result.entries[i].schreefstock._}$$`;
+            result.entries.forEach(entry => {
+                let line = `${entry.PartitionKey._} has ${entry.schreefstock._}$$`;
                 displayResult = `${displayResult}\n${line}`;
-            }
+            });
+
             displayResult = `${displayResult}\nschreef has an infinite amount of stock`;
 
             channel.send(displayResult);
@@ -150,7 +151,7 @@ function showAllStock(tableSvc, channel) {
         else {
             LOG.error(error);
         }
-    })
+    });
 };
 
 
@@ -162,15 +163,15 @@ function getStock(tableSvc, username, callback) {
         if (!error) {
             // query successful
             if (result.entries.length > 0) {
-                callback(result.entries[0].schreefstock._);
+                callback(error, result.entries[0].schreefstock._, response);
             }
             else {
-                callback(null);
+                callback(error, null, response);
             }
         }
         else {
             LOG.error(error);
-            callback(null);
+            callback(error, null, response);
         }
     });
 };

@@ -80,7 +80,7 @@ async function movie(channel, message, params) {
         return;
       }
 
-      channel.send(replaceRandomWords(movie.Title, _.capitalize(params), 1));
+      channel.send(replaceRandomWords(movie.Title, _.startCase(_.toLower(params)), 1));
       channel.send(replaceRandomWords(movie.Plot, params));
     })
     .catch(err => {

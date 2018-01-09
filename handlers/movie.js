@@ -138,8 +138,18 @@ function replaceRandomWords(str, replaceStr, numToReplace) {
         !replacedWordIndexes.includes(index - 1) &&
         !replacedWordIndexes.includes(index) &&
         !NO_REPLACE_WORDS.includes(word.toLowerCase())) {
-      let wordEnding = WORD_ENDINGS.find(wordEnding => word.endsWith(wordEnding)) || '';
-      str = _.replace(str, word, replaceStr + wordEnding);
+
+      let newWord = replaceStr;
+      let wordEnding = WORD_ENDINGS.find(wordEnding => word.endsWith(wordEnding));
+
+      if (wordEnding) {
+        if (newWord.endsWith('e') && (wordEnding === 'ed' || wordEnding === 'ing')) {
+          newWord = newWord.slice(0, -1);
+        }
+        newWord = newWord + wordEnding;
+      }
+
+      str = str.replace(new RegExp(`\\b${word}\\b`), newWord);
       replacedWordIndexes.push(index);
     } else {
       i--;

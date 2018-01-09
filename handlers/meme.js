@@ -20,9 +20,35 @@ const MEME_PASSWORD = process.env.MEME_PASSWORD;
 const API_URL = 'http://version1.api.memegenerator.net//Instance_Create';
 const languageCode = 'en';
 let generatorID = 45;
-const text0 = 'GOOD';
-const text1 = 'SHIT';
-async function meme(channel, message, params) {
+let text0 = 'GOOD';
+let text1 = 'SHIT';
+function meme(channel, message, params) {
+
+  if(!MEME_USER){
+    LOG.error('Meme generator username not set!');
+    channel.send('Meme generator username not set!');
+    return;
+  } else if(!MEME_PASSWORD){
+    LOG.error('Meme generator password not set!');
+    channel.send('Meme generator password not set!');
+    return;
+  } else if(!MEMEGENERATOR_API_KEY){
+    LOG.error('Meme generator API key not set!');
+    channel.send('Meme generator API key not set!');
+    return;
+  }
+
+  channel.fetchMessages({ before: message.id})
+    .then(messages => {
+      text0 = messages.random().content;
+      text1 = messages.random().content;
+      LOG.info('Top text: ' + text0);
+      LOG.info('Bottom text: ' + text1);
+    })
+    .catch(error => {
+      LOG.error(error);
+      channel.send("Error getting messages for channel. Using default.");
+    });
 
   let op = {
     uri: `http://version1.api.memegenerator.net//Generators_Select_ByPopular?pageIndex=0&pageSize=25&days=&apiKey=${MEMEGENERATOR_API_KEY}`,
@@ -31,7 +57,6 @@ async function meme(channel, message, params) {
 
   rp.get(op).then(generators => {
     generatorID = _.sample(generators.result).generatorID;
-    LOG.info(generatorID);
     let uri = `${API_URL}?apiKey=${MEMEGENERATOR_API_KEY}&generatorID=${generatorID}&languageCode=${languageCode}&text0=${text0}&text1=${text1}&username=${MEME_USER}&password=${MEME_PASSWORD}`;
     let options = {
       uri: uri,
@@ -40,10 +65,15 @@ async function meme(channel, message, params) {
 
     rp.get(options)
       .then(meme => {
-        // LOG.info(options);
-        // LOG.info(meme);
-        // LOG.info(meme.result);
         channel.send(meme.result.instanceImageUrl);
+      })
+      .catch(error =>{
+        LOG.error(error);
+        channel.send("Encountered an error while connecting to the world meme database; we've been set up!");
       });
+  })
+  .catch(error => {
+    LOG.error(error);
+    channel.send("Error retrieving meme generators from Memelord, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Upon It, Past, Present and Future, In This and Any Other Dimension");
   });
 }

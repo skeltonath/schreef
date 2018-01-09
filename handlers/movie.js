@@ -80,8 +80,8 @@ async function movie(channel, message, params) {
         return;
       }
 
-      channel.send(replaceRandomWords(movie.Title, params, 1));
-      channel.send(replaceRandomWords(movie.Plot, _.capitalize(params)));
+      channel.send(replaceRandomWords(movie.Title, _.capitalize(params), 1));
+      channel.send(replaceRandomWords(movie.Plot, params));
     })
     .catch(err => {
       let errorMsg = format('Error getting move details from OMBD: %s', err);

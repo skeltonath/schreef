@@ -12,18 +12,28 @@ module.exports = {
 // Having fun with messages without explicitly asking for them
 
 function passive(channel, message, client) {
-  // Storing message contents
-  let str = message.content
+  // Storing message contents, storing lowercase version for testing against
+  let str = message.content;
+  let strTest = _.toLower(str);
 
   // Regex functions that we'll use like a switch
-  let dadTest = new RegExp("i'm|I'm| im ");
-  let dadTest2 = new RegExp("i am|I am");
+  let dadTest = new RegExp("i'm| im ");
+  let dadTest2 = new RegExp("i am");
+  let shitTest = new RegExp("good shit");
 
   try {
-    if(dadTest.test(_.toLower(' ' + str))){
+    // matching messages with "i'm" or " im ", force toLower for check, add space at beginning
+    //    to match incoming messages that start with "im ", but eliminating words that
+    //    end with "im" to reduce false positives
+    if(dadTest.test(' ' + strTest)){
       heyDad(channel, message, client, str, dadTest, 4);
-    } else if(dadTest2.test(_.toLower(str))){
+    // matching messages that include "i am"
+    } else if(dadTest2.test(strTest)){
       heyDad(channel, message, client, str, dadTest2, 5);
+    // annoyingly, will run the normal goodshit command if your message contains "good shit"
+    } else if(shitTest.test(strTest)){
+      let gs = require('./goodshit');
+      gs.handler(message.channel, message, str);
     }
   }
   catch(err) {

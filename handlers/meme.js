@@ -14,16 +14,25 @@ module.exports = {
   handler: meme
 };
 
+// Memegenerator requires an API key as well as the username and password belonging to the key owner
 const MEMEGENERATOR_API_KEY = process.env.MEMEGENERATOR_API_KEY;
 const MEME_USER = process.env.MEME_USER;
 const MEME_PASSWORD = process.env.MEME_PASSWORD;
 const API_URL = 'http://version1.api.memegenerator.net//Instance_Create';
+
+// Language tagging; for browsing purposes on the memegenerator site
 const languageCode = 'en';
+
+// The meme "generator" is actually the background image that is used for the macro. Defaulting to insanity wolf
 let generatorID = 45;
+
+// Default top and bottom text in case we aren't able to pull suitable candidates from chat
 let top_text = 'GOOD';
 let bottom_text = 'SHIT';
+
 function meme(channel, message, params) {
 
+  // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
   if(!MEME_USER){
     LOG.error('Meme generator username not set!');
     channel.send('Meme generator username not set!');
@@ -38,34 +47,45 @@ function meme(channel, message, params) {
     return;
   }
 
-  channel.fetchMessages({ before: message.id})
+  // Pulling messages from the channel to populate the meme
+  //     Limiting search to the last 100 messages (the max for the fetchMessages() function)
+  channel.fetchMessages({ before: message.id, limit: 100})
     .then(messages => {
+      // Setting the new top and bottom text for the macro
       top_text = findMessage(channel, messages).content;
       bottom_text = findMessage(channel, messages).content;
     })
     .catch(error => {
+      // For some reason, if we run into an issue when finding the messages, we will let the user know and then use our fallbacks
       LOG.error(error);
       channel.send("Error getting messages for channel. Using default.");
     });
 
-  let op = {
+  // Before we make the macro, we need to query the API and find a generator to use.
+  //     The meme "generator" is actually the background image that is used for the macro.
+  //     We query the API for the current top 25 most popular generator images (25 is the max for the results page size),
+  //     and then randomly choose one of those to use.
+  let generatorOptions = {
     uri: `http://version1.api.memegenerator.net//Generators_Select_ByPopular?pageIndex=0&pageSize=25&days=&apiKey=${MEMEGENERATOR_API_KEY}`,
     json: true
   };
-
-  rp.get(op).then(generators => {
+  rp.get(generatorOptions).then(generators => {
     generatorID = _.sample(generators.result).generatorID;
+
+    // Now that we've gotten a generator, we can send our options to the meme forge and build our dark creation
     let uri = `${API_URL}?apiKey=${MEMEGENERATOR_API_KEY}&generatorID=${generatorID}&languageCode=${languageCode}&text0=${top_text}&text1=${bottom_text}&username=${MEME_USER}&password=${MEME_PASSWORD}`;
     let options = {
       uri: uri,
       json: true
     };
-
     rp.get(options)
       .then(meme => {
+        // The API will spit back a bunch of stuff, namely the URL of the macro it just made
         channel.send(meme.result.instanceImageUrl);
       })
       .catch(error =>{
+        // This will catch when we are able to query the generator, but the macro creation fails for some reason
+        //     As a fun treat, we can still send the top and bottom text of our meme-to-be to the channel
         LOG.error(error);
         channel.send("Encountered an error while connecting to the world meme database; we've been set up!");
         channel.send(_.toUpper(top_text));
@@ -73,15 +93,19 @@ function meme(channel, message, params) {
       });
   })
   .catch(error => {
+    // The memegenerator API is not reliable, and goes down often enough for it to be a nuisance. This displays when we can't connect
+    //     to the generator; usually after the server process times out. Again, we still have messages so we can still send those
     LOG.error(error);
-    channel.send("Error retrieving meme generators from Memelord, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Upon It, Past, Present and Future, In This and Any Other Dimension");
+    channel.send("Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS");
     channel.send(_.toUpper(top_text));
     channel.send(_.toUpper(bottom_text));
   });
 }
 
+// From the returned messages from discord, we will randomly choose one of those
 function findMessage(channel, messages){
   let found = messages.random();
+  // If the returned message was sent by the bot or is a bot command, let's just recurse and try again until we get it right
   if(found.author.id == channel.client.user.id || found.content.startsWith('.')){
     found = findMessage(channel, messages);
   }

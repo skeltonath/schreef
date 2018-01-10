@@ -62,7 +62,7 @@ function meme(channel, message, params) {
   //     The meme "generator" is actually the background image that is used for the macro.
   //     We query the API for the current top 25 most popular generator images (25 is the max for the results page size),
   //     and then randomly choose one of those to use.
-  let generatorOptions = {
+  const generatorOptions = {
     uri: `http://version1.api.memegenerator.net//Generators_Select_ByPopular?pageIndex=0&pageSize=25&days=&apiKey=${MEMEGENERATOR_API_KEY}`,
     json: true
   };
@@ -70,8 +70,8 @@ function meme(channel, message, params) {
     generatorID = _.sample(generators.result).generatorID;
 
     // Now that we've gotten a generator, we can send our options to the meme forge and build our dark creation
-    let uri = `${API_URL}?apiKey=${MEMEGENERATOR_API_KEY}&generatorID=${generatorID}&languageCode=${languageCode}&text0=${top_text}&text1=${bottom_text}&username=${MEME_USER}&password=${MEME_PASSWORD}`;
-    let options = {
+    const uri = `${API_URL}?apiKey=${MEMEGENERATOR_API_KEY}&generatorID=${generatorID}&languageCode=${languageCode}&text0=${top_text}&text1=${bottom_text}&username=${MEME_USER}&password=${MEME_PASSWORD}`;
+    const options = {
       uri: uri,
       json: true
     };
@@ -102,9 +102,11 @@ function meme(channel, message, params) {
 // From the returned messages from discord, we will randomly choose one of those
 function findMessage(channel, messages){
   let found = messages.random();
-  // If the returned message was sent by the bot or is a bot command, let's just recurse and try again until we get it right
-  if(found.author.id == channel.client.user.id || found.content.startsWith('.')){
-    found = findMessage(channel, messages);
+  // Randomly look through all results until we get a message that isnt bot generated or a bot command
+  let i = 0;
+  while ( (found.author.id === channel.client.user.id || found.content.startsWith('.')) && i < messages.size) {
+    found = messages.random();
+    i++;
   }
   return found;
 }

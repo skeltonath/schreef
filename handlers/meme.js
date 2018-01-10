@@ -104,7 +104,7 @@ function findMessage(channel, messages){
   let found = messages.random();
   // Randomly look through all results until we get a message that isnt bot generated or a bot command
   let i = 0;
-  while ( (found.author.id === channel.client.user.id || found.content.startsWith('.')) && i < messages.size) {
+  while ( (found.author.bot || found.content.startsWith('.')) && i < messages.size) {
     found = messages.random();
     i++;
   }

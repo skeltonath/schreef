@@ -41,11 +41,13 @@ const NO_REPLACE_WORDS = [
   'because',  'than',   'while',      'where',
   'after',    'so',     'though',     'since',
   'until',    'unless', 'although',   'whether',
-  'nor'
+  'nor',      'be',     'being',      'been',
+  'is',       'are',    'am',         'was',
+  'were'
 ];
 
 const WORD_ENDINGS = [
-  'ing', 'ed', '\'s'
+  'ing', 'ed', 's'
 ];
 
 /**
@@ -122,7 +124,7 @@ function replaceRandomWords(str, replaceStr, numToReplace) {
   let words = _.words(str);
 
   if (!numToReplace) {
-    numToReplace = _.random(1, words.length / 4);
+    numToReplace = _.random(1, words.length / 5);
   }
 
   if (words.length === 1) {

@@ -1,8 +1,5 @@
 const _       = require('lodash');
-const request = require('request');
 const rp      = require('request-promise');
-const cheerio = require('cheerio');
-const format  = require('format');
 const log4js  = require('log4js');
 
 const LOG = log4js.getLogger('meme');

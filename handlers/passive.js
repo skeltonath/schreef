@@ -37,7 +37,10 @@ function passive(channel, message, client) {
     }
   }
   catch(err) {
-    LOG.error('Hey, I ran into an error when running a passive command: ');
+    // Error logging outside of main schreef.js function because we don't log every
+    //     time the passive handler is used, which is every message that isn't
+    //     an explicit command.
+    LOG.error('Error when running a passive command: ');
     LOG.error(err);
   }
   
@@ -48,6 +51,5 @@ function heyDad(channel, message, client, str, dadTest, testLength) {
   let pos = str.search(dadTest);
   let end = pos + testLength;
   let newName = _.startCase(_.toLower(str.substr(end, str.length)));
-  str = str.split(" ");
-  channel.send(format("Hi %s, I'm %s", newName, client.user.username));
+  channel.send(`Hi ${newName}, I'm ${client.user.username}`);
 }

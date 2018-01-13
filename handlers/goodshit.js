@@ -67,42 +67,44 @@ const GOOD_SHIT_ARRAY = [
 ];
 
 // Only param to retrieve is the message text; anything after the command
-function goodshit(channel, message, params) {
-  helpers.getMessage(channel).then( fallback => {
-    let msgText = params != '' ? params : fallback.content;
-    let words = _.words(msgText,  /[^, ]+/g);
+async function goodshit(channel, message, params) {
 
-    let newWords = [];
+  // Pull messages from cache for fallback if no message is specified
+  const messages = await helpers.getMessages(channel);
+  let fallback = helpers.filterMessages(messages);
+  let msgText = params != '' ? params : fallback.content;
+  let words = _.words(msgText,  /[^, ]+/g);
 
-    // For every word in the message...
-    _.each(words, function(word) {
+  let newWords = [];
 
-      // Get some random numbers to figure out how many go౦ԁ sHits to put before and after the word
-      let goodshitBefore = _.random(0, 2);
-      let goodshitAfter = _.random(0, 3);
+  // For every word in the message...
+  _.each(words, function(word) {
 
-      // Before the word, put a random selection from the go౦ԁ sHit array, a random number of times
-      _.each(_.range(goodshitBefore), function() {
-        let goodshitText = _.sample(GOOD_SHIT_ARRAY);
-        newWords.push(goodshitText);
-      });
+    // Get some random numbers to figure out how many go౦ԁ sHits to put before and after the word
+    let goodshitBefore = _.random(0, 2);
+    let goodshitAfter = _.random(0, 3);
 
-      newWords.push(word);
-
-      // Always append one of the original words with an a-okay
-      newWords.push('👌');
-
-      // Random sampling after the word
-      _.each(_.range(goodshitAfter), function() {
-        let goodshitText = _.sample(GOOD_SHIT_ARRAY);
-        newWords.push(goodshitText);
-      });
+    // Before the word, put a random selection from the go౦ԁ sHit array, a random number of times
+    _.each(_.range(goodshitBefore), function() {
+      let goodshitText = _.sample(GOOD_SHIT_ARRAY);
+      newWords.push(goodshitText);
     });
 
-    // stick all the words together
-    let newText = newWords.join(' ');
+    newWords.push(word);
 
-    // Sending message; if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
-    channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
+    // Always append one of the original words with an a-okay
+    newWords.push('👌');
+
+    // Random sampling after the word
+    _.each(_.range(goodshitAfter), function() {
+      let goodshitText = _.sample(GOOD_SHIT_ARRAY);
+      newWords.push(goodshitText);
+    });
   });
+
+  // stick all the words together
+  let newText = newWords.join(' ');
+
+  // Sending message; if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
+  channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

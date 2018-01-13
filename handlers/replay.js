@@ -1,10 +1,8 @@
-var _ = require('lodash');
-var log4js = require('log4js');
-var format = require('format');
-var moment = require('moment-timezone');
+const _ = require('lodash');
+const format = require('format');
+const moment = require('moment-timezone');
 
-var LOG = log4js.getLogger('replay');
-var TZ = 'US/Pacific';
+const TZ = 'US/Pacific';
 
 /**
  * This module sends a replay of the most recent messages
@@ -13,7 +11,7 @@ var TZ = 'US/Pacific';
 module.exports = {
   name: 'replay',
   command: ':replay',
-  handler: replay
+  handler: replay,
 };
 
 function replay(client, nick, to, text, message, params, buffer) {
@@ -24,17 +22,19 @@ function replay(client, nick, to, text, message, params, buffer) {
     return;
   }
 
-  var numMessages = parseInt(params[0], 10);
+  const numMessages = parseInt(params[0], 10);
   if (!_.isFinite(numMessages)) {
     client.say(to, format('Invalid number of messages provided: %s', params[0]));
     return;
   }
 
   client.say(to, format('%s, I am sending you the last %d messages', nick, numMessages));
-  _.forEachRight(_.range(numMessages), function(index) {
-    var msg = buffer[index];
-    var msgStr = format('[%s] %s: %s',
-      moment.tz(msg.timestamp, TZ).format('LTS'), msg.nick, msg.text);
+  _.forEachRight(_.range(numMessages), (index) => {
+    const msg = buffer[index];
+    const msgStr = format(
+      '[%s] %s: %s',
+      moment.tz(msg.timestamp, TZ).format('LTS'), msg.nick, msg.text,
+    );
     client.say(nick, msgStr);
   });
 }

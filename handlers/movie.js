@@ -1,9 +1,8 @@
-const _       = require('lodash');
-const request = require('request');
-const rp      = require('request-promise');
+const _ = require('lodash');
+const rp = require('request-promise');
 const cheerio = require('cheerio');
-const format  = require('format');
-const log4js  = require('log4js');
+const format = require('format');
+const log4js = require('log4js');
 
 const LOG = log4js.getLogger('movie');
 
@@ -14,41 +13,42 @@ const LOG = log4js.getLogger('movie');
 module.exports = {
   name: 'movie',
   command: 'movie',
-  handler: movie
+  handler: movie,
 };
 
+const { OMDB_API_KEY } = process.env;
 const IMDB_URL = 'http://www.imdb.com/chart/moviemeter';
 const OMDB_URL = 'http://www.omdbapi.com';
 const IMDB_ID_REGEX = /tt(\d+)/;
-const OMDB_API_KEY = process.env.OMDB_API_KEY;
-let CACHED_IMDB_IDS = [];
 
 const NO_REPLACE_WORDS = [
-  'a',        'an',     'the',        'some',
-  'of',       'with',   'at',         'from',
-  'into',     'during', 'including',  'until',
-  'against',  'among',  'throughout', 'despite',
-  'towards',  'upon',   'concerning', 'to',
-  'in',       'for',    'on',         'by',
-  'about',    'like',   'through',    'over',
-  'before',   'between','after',      'since',
-  'without',  'under',  'within',     'along',
-  'following','across', 'behind',     'beyond',
-  'plus',     'except', 'but',        'up',
-  'out',      'around', 'down',       'off',
-  'above',    'near',   'and',        'that',
-  'or',       'as',     'if',         'when',
-  'because',  'than',   'while',      'where',
-  'after',    'so',     'though',     'since',
-  'until',    'unless', 'although',   'whether',
-  'nor',      'be',     'being',      'been',
-  'is',       'are',    'am',         'was',
-  'were'
+  'a', 'an', 'the', 'some',
+  'of', 'with', 'at', 'from',
+  'into', 'during', 'including', 'until',
+  'against', 'among', 'throughout', 'despite',
+  'towards', 'upon', 'concerning', 'to',
+  'in', 'for', 'on', 'by',
+  'about', 'like', 'through', 'over',
+  'before', 'between', 'after', 'since',
+  'without', 'under', 'within', 'along',
+  'following', 'across', 'behind', 'beyond',
+  'plus', 'except', 'but', 'up',
+  'out', 'around', 'down', 'off',
+  'above', 'near', 'and', 'that',
+  'or', 'as', 'if', 'when',
+  'because', 'than', 'while', 'where',
+  'after', 'so', 'though', 'since',
+  'until', 'unless', 'although', 'whether',
+  'nor', 'be', 'being', 'been',
+  'is', 'are', 'am', 'was',
+  'were',
 ];
 
 const WORD_ENDINGS = [
-  'ing', 'ed', 's'
+  'ing', 'ed', 's',
 ];
+
+let CACHED_IMDB_IDS = [];
 
 /**
  * Replaces words in a random popular IMBD title
@@ -61,32 +61,32 @@ async function movie(channel, message, params) {
     CACHED_IMDB_IDS = await getImdbIds();
   }
 
-  let id = _.sample(CACHED_IMDB_IDS);
-  let options = {
+  const id = _.sample(CACHED_IMDB_IDS);
+  const options = {
     uri: OMDB_URL,
     qs: {
-      i: 'tt' + id,
+      i: `tt${id}`,
       type: 'movie',
       plot: 'short',
-      apikey: OMDB_API_KEY
+      apikey: OMDB_API_KEY,
     },
-    json: true
+    json: true,
   };
 
   rp.get(options)
-    .then(movie => {
-      if (movie.Error) {
-        let errorMsg = format('Error getting move details from OMBD: %s', movie.Error);
+    .then((movieResponse) => {
+      if (movieResponse.Error) {
+        const errorMsg = format('Error getting move details from OMBD: %s', movieResponse.Error);
         channel.send(errorMsg);
         LOG.error(errorMsg);
         return;
       }
 
-      channel.send(replaceRandomWords(movie.Title, _.startCase(_.toLower(params)), 1));
-      channel.send(replaceRandomWords(movie.Plot, params));
+      channel.send(replaceRandomWords(movieResponse.Title, _.startCase(_.toLower(params)), 1));
+      channel.send(replaceRandomWords(movieResponse.Plot, params));
     })
-    .catch(err => {
-      let errorMsg = format('Error getting move details from OMBD: %s', err);
+    .catch((err) => {
+      const errorMsg = format('Error getting move details from OMBD: %s', err);
       channel.send(errorMsg);
       LOG.error(errorMsg);
     });
@@ -96,24 +96,24 @@ async function movie(channel, message, params) {
  * Gets a random IMDB ID.
  */
 function getImdbIds() {
-  let options = {
+  const options = {
     url: IMDB_URL,
-    transform: cheerio.load
+    transform: cheerio.load,
   };
 
   return new Promise((resolve, reject) => {
     rp.get(options)
-      .then($ => {
-        let ids = $('.titleColumn')
+      .then(($) => {
+        const ids = $('.titleColumn')
           .find('a')
           .map((i, el) => {
-            let href = $(el).attr('href');
-            return IMDB_ID_REGEX.exec(href)[1]
+            const href = $(el).attr('href');
+            return IMDB_ID_REGEX.exec(href)[1];
           })
           .get();
         resolve(ids);
       })
-      .catch(err => {
+      .catch((err) => {
         LOG.error(err);
         reject(err);
       });
@@ -121,7 +121,7 @@ function getImdbIds() {
 }
 
 function replaceRandomWords(str, replaceStr, numToReplace) {
-  let words = _.words(str);
+  const words = _.words(str);
 
   if (!numToReplace) {
     numToReplace = _.random(1, words.length / 5);
@@ -131,24 +131,23 @@ function replaceRandomWords(str, replaceStr, numToReplace) {
     return _.replace(str, words[0], `${words[0]} ${replaceStr}`);
   }
 
-  let replacedWordIndexes = [];
+  const replacedWordIndexes = [];
 
   for (let i = 0; i < numToReplace; i++) {
-    let index = _.random(0, words.length - 1);
-    let word = words[index];
+    const index = _.random(0, words.length - 1);
+    const word = words[index];
     if (!replacedWordIndexes.includes(index + 1) &&
         !replacedWordIndexes.includes(index - 1) &&
         !replacedWordIndexes.includes(index) &&
         !NO_REPLACE_WORDS.includes(word.toLowerCase())) {
-
       let newWord = replaceStr;
-      let wordEnding = WORD_ENDINGS.find(wordEnding => word.endsWith(wordEnding));
+      const wordEnding = WORD_ENDINGS.find(we => word.endsWith(we));
 
       if (wordEnding) {
         if (newWord.endsWith('e') && (wordEnding === 'ed' || wordEnding === 'ing')) {
           newWord = newWord.slice(0, -1);
         }
-        newWord = newWord + wordEnding;
+        newWord += wordEnding;
       }
 
       str = str.replace(new RegExp(`\\b${word}\\b`), newWord);

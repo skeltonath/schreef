@@ -15,7 +15,7 @@ module.exports = {
 
 const DAD_API = 'https://icanhazdadjoke.com/';
 
-function dad(channel, message, params) {
+function dad(channel) {
   const options = {
     uri: DAD_API,
     json: true,

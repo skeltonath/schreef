@@ -22,30 +22,30 @@ const OMDB_URL = 'http://www.omdbapi.com';
 const IMDB_ID_REGEX = /tt(\d+)/;
 
 const NO_REPLACE_WORDS = [
-  'a',        'an',     'the',        'some',
-  'of',       'with',   'at',         'from',
-  'into',     'during', 'including',  'until',
-  'against',  'among',  'throughout', 'despite',
-  'towards',  'upon',   'concerning', 'to',
-  'in',       'for',    'on',         'by',
-  'about',    'like',   'through',    'over',
-  'before',   'between','after',      'since',
-  'without',  'under',  'within',     'along',
-  'following','across', 'behind',     'beyond',
-  'plus',     'except', 'but',        'up',
-  'out',      'around', 'down',       'off',
-  'above',    'near',   'and',        'that',
-  'or',       'as',     'if',         'when',
-  'because',  'than',   'while',      'where',
-  'after',    'so',     'though',     'since',
-  'until',    'unless', 'although',   'whether',
-  'nor',      'be',     'being',      'been',
-  'is',       'are',    'am',         'was',
-  'were'
+  'a', 'an', 'the', 'some',
+  'of', 'with', 'at', 'from',
+  'into', 'during', 'including', 'until',
+  'against', 'among', 'throughout', 'despite',
+  'towards', 'upon', 'concerning', 'to',
+  'in', 'for', 'on', 'by',
+  'about', 'like', 'through', 'over',
+  'before', 'between', 'after', 'since',
+  'without', 'under', 'within', 'along',
+  'following', 'across', 'behind', 'beyond',
+  'plus', 'except', 'but', 'up',
+  'out', 'around', 'down', 'off',
+  'above', 'near', 'and', 'that',
+  'or', 'as', 'if', 'when',
+  'because', 'than', 'while', 'where',
+  'after', 'so', 'though', 'since',
+  'until', 'unless', 'although', 'whether',
+  'nor', 'be', 'being', 'been',
+  'is', 'are', 'am', 'was',
+  'were',
 ];
 
 const WORD_ENDINGS = [
-  'ing', 'ed', 's'
+  'ing', 'ed', 's',
 ];
 
 let CACHED_IMDB_IDS = [];

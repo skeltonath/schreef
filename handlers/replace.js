@@ -36,8 +36,8 @@ function replace(channel, message, params) {
     .then((messages) => {
       const targetMessage = findMatchingMessage(messages, targetStr, flags, targetUser);
       if (targetMessage) {
-        let re = new RegExp(targetStr, flags);
-        let newMessage = targetMessage.content.replace(re, replaceStr);
+        const re = new RegExp(targetStr, flags);
+        const newMessage = targetMessage.content.replace(re, replaceStr);
         channel.send(format('%s ***meant*** to say: %s', targetMessage.author.username, newMessage));
       } else {
         channel.send('No messages containing that string found');

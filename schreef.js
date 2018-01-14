@@ -55,6 +55,11 @@ function handleMessage(message) {
       const handler = handlerMap[command];
       handler(message.channel, message, params);
     }
+  } else {
+    // If it doesn't look like a command, send the message 
+    // to a passive handler; message functions that don't require explicit commands
+    var handler = handlerMap['passive'];
+    handler(message.channel, message, client);
   }
 }
 

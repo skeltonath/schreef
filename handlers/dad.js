@@ -21,14 +21,14 @@ function dad(message) {
     json: true,
   };
 
-  rp.get(options).then(joke => {
+  rp.get(options).then((joke) => {
     if (joke.joke) {
       message.reply(joke.joke);
     } else {
       LOG.error(joke);
       message.reply('Error receiving joke from Dad Central Station');
     }
-  }).catch(err => {
+  }).catch((err) => {
     LOG.error(err);
     message.reply('Error receiving joke from Dad Central Station');
   });

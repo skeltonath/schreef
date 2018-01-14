@@ -57,7 +57,7 @@ let CACHED_IMDB_IDS = [];
  */
 async function movie(message) {
   const params = message.content.slice('.movie'.length).trim();
-  
+
   if (_.isEmpty(CACHED_IMDB_IDS)) {
     LOG.info('IMDB ID cache is empty, populating cache');
     CACHED_IMDB_IDS = await getImdbIds();
@@ -105,7 +105,7 @@ function getImdbIds() {
 
   return new Promise((resolve, reject) => {
     rp.get(options)
-      .then($ => {
+      .then(($) => {
         const ids = $('.titleColumn')
           .find('a')
           .map((i, el) => {
@@ -115,7 +115,7 @@ function getImdbIds() {
           .get();
         resolve(ids);
       })
-      .catch(err => {
+      .catch((err) => {
         LOG.error(err);
         reject(err);
       });

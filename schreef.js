@@ -3,7 +3,6 @@ const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 const log4js = require('log4js');
-const format = require('format');
 const express = require('express');
 const http = require('http');
 
@@ -42,21 +41,21 @@ function loadHandlers() {
 function handleMessage(message) {
   // if message is from bot, skip
   if (message.author.bot) return;
-  
-  const handler = handlers.find(h => {
+
+  const handler = handlers.find((h) => {
     const trigger = h.trigger;
-    
+
     if (_.isString(trigger)) {
       return message.startsWith(trigger);
     }
-    
+
     if (_.isFunction(trigger)) {
       return trigger(message);
     }
-    
+
     return false;
   });
-  
+
   if (handler) {
     LOG.info(`Executing ${handler.name} command`);
     handler.handler(message, client);

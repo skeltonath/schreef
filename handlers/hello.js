@@ -9,5 +9,5 @@ function hello(message) {
 module.exports = {
   name: 'hello',
   trigger: '.hello',
-  handler: hello
+  handler: hello,
 };

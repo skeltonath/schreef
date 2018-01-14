@@ -90,7 +90,9 @@ function stock(channel, message, params) {
     const recipient = splitParams[1];
     const sendAmount = parseInt(splitParams[2], 10);
 
-    if (sendAmount < 0) {
+    if (sendAmount === 0) {
+      channel.send('Why?');
+    } else if (sendAmount < 0) {
       channel.send('You can\'t steal $$ here, fleshbag.');
     } else if (recipient !== message.author.username) {
       getStock(tableSvc, recipient, (recieverError, receiverStock) => {
@@ -111,12 +113,12 @@ function stock(channel, message, params) {
               channel.send(transactionString);
             } else {
               channel.send('Not enough $$ to make the transaction. Get a job.');
-              LOG.error(senderError);
+              LOG.error(`${senderError}: Sender doesn't exist or doesn't have enough $$ to send`);
             }
           });
         } else {
           channel.send('Nobody of that name exists or they\'re a bot. Schreef won\'t throw his $$ to the abyss or filthy machines.');
-          LOG.error(recieverError);
+          LOG.error(`${recieverError}: Recipient doesn't exist.`);
         }
       });
     } else {

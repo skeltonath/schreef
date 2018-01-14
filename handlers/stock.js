@@ -16,13 +16,14 @@ const LOG = log4js.getLogger('stock');
 
 module.exports = {
   name: 'stock',
-  command: 'stock',
+  test: '.stock',
   handler: stock,
 };
 
-function stock(channel, message, params) {
+function stock(message) {
   // Initialize table service
   const tableSvc = azure.createTableService(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  const params = message.content.slice('.stock'.length).trim();
   const splitParams = params.split(' ');
 
   // Verify the Azure Storage Table exists and create if it doesn't
@@ -35,7 +36,7 @@ function stock(channel, message, params) {
   });
 
   // Verify all users have an account and create new ones for those that don't
-  channel.guild.members.forEach((member) => {
+  message.channel.guild.members.forEach((member) => {
     getStock(tableSvc, member.user.username, (error, result, response) => {
       if (typeof result !== 'number') {
         LOG.info(`Setting up new $chreef $tock account for ${member.user.username}`);
@@ -45,7 +46,7 @@ function stock(channel, message, params) {
   });
 
   if (splitParams[0] === 'help') {
-    channel.send('Command Usage:' + '\n' +
+    message.reply('Command Usage:' + '\n' +
             '.reset - Resets you back to 1000$$' + '\n' +
             '.balance - Displays your balance' + '\n' +
             '.allbalances - Displays everyone\'s balance' + '\n' +
@@ -61,13 +62,13 @@ function stock(channel, message, params) {
   // Get the stock for that user
   if (splitParams[0] === 'balance') {
     getStock(tableSvc, message.author.username, (error, result, response) => {
-      channel.send(`${message.author.username}\'s balance is ${result}$$`);
+      message.reply(`${message.author.username}\'s balance is ${result}$$`);
     });
   }
 
   // Show the stock for all users
   if (splitParams[0] === 'allbalances') {
-    showAllStock(tableSvc, channel);
+    showAllStock(tableSvc, message);
   }
 
   // Send stock to another user if they have an account
@@ -91,17 +92,17 @@ function stock(channel, message, params) {
               transactionString += `${message.author.username}: ${senderStock} - ${sendAmount} = ${newSenderTotal}\n${recipient}: ${receiverStock} + ${sendAmount} = ${newReceiverTotal}`;
 
               LOG.info(transactionLog);
-              channel.send(transactionString);
+              message.reply(transactionString);
             } else {
-              channel.send('Not enough stock to make the transaction.');
+              message.reply('Not enough stock to make the transaction.');
             }
           });
         } else {
-          channel.send('That user does not exist! Schreef won\'t throw his stock to the abyss.');
+          message.reply('That user does not exist! Schreef won\'t throw his stock to the abyss.');
         }
       });
     } else {
-      channel.send('You can\'t send yourself stock here.');
+      message.reply('You can\'t send yourself stock here.');
     }
   }
 }
@@ -124,7 +125,7 @@ function updateUser(tableSvc, username, amount) {
 }
 
 // Displays everyone's stock
-function showAllStock(tableSvc, channel) {
+function showAllStock(tableSvc, message) {
   const query = new azure.TableQuery().where('RowKey eq ?', '1');
   let displayResult = 'Full ledger: ';
 
@@ -138,7 +139,7 @@ function showAllStock(tableSvc, channel) {
 
       displayResult = `${displayResult}\nschreef has an infinite amount of stock`;
 
-      channel.send(displayResult);
+      message.reply(displayResult);
     } else {
       LOG.error(error);
     }

@@ -12,7 +12,7 @@ const LOG = log4js.getLogger('movie');
  */
 module.exports = {
   name: 'movie',
-  command: 'movie',
+  command: '.movie',
   handler: movie,
 };
 
@@ -55,7 +55,9 @@ let CACHED_IMDB_IDS = [];
  * with a given string and sends the results to
  * the IRC channel or user.
  */
-async function movie(channel, message, params) {
+async function movie(message) {
+  const params = message.content.slice('.movie'.length).trim();
+  
   if (_.isEmpty(CACHED_IMDB_IDS)) {
     LOG.info('IMDB ID cache is empty, populating cache');
     CACHED_IMDB_IDS = await getImdbIds();
@@ -77,17 +79,17 @@ async function movie(channel, message, params) {
     .then((movieResponse) => {
       if (movieResponse.Error) {
         const errorMsg = format('Error getting move details from OMBD: %s', movieResponse.Error);
-        channel.send(errorMsg);
+        message.reply(errorMsg);
         LOG.error(errorMsg);
         return;
       }
 
-      channel.send(replaceRandomWords(movieResponse.Title, _.startCase(_.toLower(params)), 1));
-      channel.send(replaceRandomWords(movieResponse.Plot, params));
+      message.reply(replaceRandomWords(movieResponse.Title, _.startCase(_.toLower(params)), 1));
+      message.reply(replaceRandomWords(movieResponse.Plot, params));
     })
     .catch((err) => {
       const errorMsg = format('Error getting move details from OMBD: %s', err);
-      channel.send(errorMsg);
+      message.reply(errorMsg);
       LOG.error(errorMsg);
     });
 }
@@ -103,7 +105,7 @@ function getImdbIds() {
 
   return new Promise((resolve, reject) => {
     rp.get(options)
-      .then(($) => {
+      .then($ => {
         const ids = $('.titleColumn')
           .find('a')
           .map((i, el) => {
@@ -113,7 +115,7 @@ function getImdbIds() {
           .get();
         resolve(ids);
       })
-      .catch((err) => {
+      .catch(err => {
         LOG.error(err);
         reject(err);
       });

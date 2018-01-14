@@ -2,12 +2,12 @@
  * This handler says hello.
  */
 
-function hello(channel) {
-  channel.send('Hello!');
+function hello(message) {
+  message.reply('Hello!');
 }
 
 module.exports = {
   name: 'hello',
-  command: 'hello',
-  handler: hello,
+  command: '.hello',
+  handler: hello
 };

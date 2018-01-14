@@ -7,7 +7,7 @@ const LOG = log4js.getLogger('meme');
 
 module.exports = {
   name: 'meme',
-  command: 'meme',
+  command: '.meme',
   handler: meme,
 };
 
@@ -27,34 +27,34 @@ let generatorID = 45;
 let top_text = 'GOOD';
 let bottom_text = 'SHIT';
 
-function meme(channel, message, params) {
+function meme(message, client) {
   // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
   if (!MEME_USER) {
     LOG.error('Meme generator username not set!');
-    channel.send('Meme generator username not set!');
+    message.reply('Meme generator username not set!');
     return;
   } else if (!MEME_PASSWORD) {
     LOG.error('Meme generator password not set!');
-    channel.send('Meme generator password not set!');
+    message.reply('Meme generator password not set!');
     return;
   } else if (!MEMEGENERATOR_API_KEY) {
     LOG.error('Meme generator API key not set!');
-    channel.send('Meme generator API key not set!');
+    message.reply('Meme generator API key not set!');
     return;
   }
 
   // Pulling messages from the channel to populate the meme
   //     Limiting search to the last 100 messages (the max for the fetchMessages() function)
-  channel.fetchMessages({ before: message.id, limit: 100 })
+  message.channel.fetchMessages({ before: message.id, limit: 100 })
     .then((messages) => {
       // Setting the new top and bottom text for the macro
-      top_text = findMessage(channel, messages).content;
-      bottom_text = findMessage(channel, messages).content;
+      top_text = findMessage(messages).content;
+      bottom_text = findMessage(messages).content;
     })
     .catch((error) => {
       // For some reason, if we run into an issue when finding the messages, we will let the user know and then use our fallbacks
       LOG.error(error);
-      channel.send('Error getting messages for channel. Using default.');
+      message.reply('Error getting messages for channel. Using default.');
     });
 
   // Before we make the macro, we need to query the API and find a generator to use.
@@ -77,29 +77,29 @@ function meme(channel, message, params) {
     rp.get(options)
       .then((meme) => {
         // The API will spit back a bunch of stuff, namely the URL of the macro it just made
-        channel.send(meme.result.instanceImageUrl);
+        message.reply(meme.result.instanceImageUrl);
       })
       .catch((error) => {
         // This will catch when we are able to query the generator, but the macro creation fails for some reason
         //     As a fun treat, we can still send the top and bottom text of our meme-to-be to the channel
         LOG.error(error);
-        channel.send("Encountered an error while connecting to the world meme database; we've been set up!");
-        channel.send(_.toUpper(top_text));
-        channel.send(_.toUpper(bottom_text));
+        message.reply("Encountered an error while connecting to the world meme database; we've been set up!");
+        message.reply(_.toUpper(top_text));
+        message.reply(_.toUpper(bottom_text));
       });
   })
     .catch((error) => {
     // The memegenerator API is not reliable, and goes down often enough for it to be a nuisance. This displays when we can't connect
     //     to the generator; usually after the server process times out. Again, we still have messages so we can still send those
       LOG.error(error);
-      channel.send('Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS');
-      channel.send(_.toUpper(top_text));
-      channel.send(_.toUpper(bottom_text));
+      message.reply('Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS');
+      message.reply(_.toUpper(top_text));
+      message.reply(_.toUpper(bottom_text));
     });
 }
 
 // From the returned messages from discord, we will randomly choose one of those
-function findMessage(channel, messages) {
+function findMessage(messages) {
   let found = messages.random();
   // Randomly look through all results until we get a message that isnt bot generated or a bot command
   let i = 0;

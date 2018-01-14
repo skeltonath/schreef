@@ -23,7 +23,7 @@ log4js.configure('config/log4js-config.json');
 const LOG = log4js.getLogger('main');
 
 // Fields
-const handlerMap = {};
+const handlers = [];
 
 // Functions
 function loadHandlers() {
@@ -33,7 +33,7 @@ function loadHandlers() {
   _.each(files, (file) => {
     /* eslint-disable global-require, import/no-dynamic-require */
     const handler = require(`./handlers/${file}`);
-    handlerMap[handler.command] = handler.handler;
+    handlers.push(handler);
     LOG.info(`Loaded ${handler.name}`);
     /* eslint-enable global-require, import/no-dynamic-require */
   });
@@ -41,7 +41,28 @@ function loadHandlers() {
 
 function handleMessage(message) {
   // if message is from bot, skip
-  if (message.author.id === client.user.id) return;
+  if (message.author.bot) return;
+  
+  const handler = handlers.find(h => {
+    const test = h.test;
+    
+    if (_.isString(test)) {
+      return message.startsWith(test);
+    }
+    
+    if (_.isFunction(test)) {
+      return test(message);
+    }
+    
+    return false;
+  });
+  
+  if (handler) {
+    LOG.info(`Executing ${handler.name} command`);
+    handler.handler(message, client);
+  }
+  
+  
 
   // handle command
   const args = message.content.match(/^\.(\w+)\s*(.*)$/);
@@ -50,9 +71,9 @@ function handleMessage(message) {
     const command = args[1];
     const params = args[2];
 
-    if (_.has(handlerMap, command)) {
+    if (_.has(handler, command)) {
       LOG.info(format('Executing %s command', command));
-      const handler = handlerMap[command];
+      const handler = handler[command];
       handler(message.channel, message, params);
     }
   }

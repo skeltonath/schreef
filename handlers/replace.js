@@ -8,11 +8,12 @@ const LOG = log4js.getLogger('replace');
  */
 module.exports = {
   name: 'replace',
-  command: 'r',
+  command: '.r',
   handler: replace,
 };
 
-function replace(channel, message, params) {
+function replace(message) {
+  let params = message.content.slice('.r'.length).trim();
   params = params.split('/');
   let targetStr = params[0];
   const replaceStr = params[1];
@@ -23,7 +24,7 @@ function replace(channel, message, params) {
     flags = flags.trim().toLowerCase();
 
     if (flags.search(/^(g|i|gi|ig)?$/) === -1) {
-      channel.send(`Invalid flags: ${flags}. Only g (global) and i (ignore case) are allowed.`);
+      message.reply(`Invalid flags: ${flags}. Only g (global) and i (ignore case) are allowed.`);
       return;
     }
   }
@@ -32,20 +33,20 @@ function replace(channel, message, params) {
     targetStr = targetStr.toLowerCase();
   }
 
-  channel.fetchMessages({ before: message.id })
+  message.channel.fetchMessages({ before: message.id })
     .then((messages) => {
       const targetMessage = findMatchingMessage(messages, targetStr, flags, targetUser);
       if (targetMessage) {
         const re = new RegExp(targetStr, flags);
         const newMessage = targetMessage.content.replace(re, replaceStr);
-        channel.send(format('%s ***meant*** to say: %s', targetMessage.author.username, newMessage));
+        message.reply(format('%s ***meant*** to say: %s', targetMessage.author.username, newMessage));
       } else {
-        channel.send('No messages containing that string found');
+        message.reply('No messages containing that string found');
       }
     })
     .catch((error) => {
       LOG.error(error);
-      channel.send('Error getting messages for channel');
+      message.reply('Error getting messages for channel');
     });
 }
 

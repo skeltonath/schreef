@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 module.exports = {
   name: 'goodshit',
-  command: 'gs',
+  command: '.gs',
   handler: goodshit,
 };
 
@@ -63,7 +63,8 @@ const GOOD_SHIT_ARRAY = [
 ];
 
 // Only param to retrieve is the message text; anything after the command
-function goodshit(channel, message, params) {
+function goodshit(message) {
+  const params = message.content.slice('.gs'.length).trim();
   const msgText = params !== '' ? params : 'good shit good shit good shit';
   const words = _.words(msgText, /[^, ]+/g);
 
@@ -98,5 +99,5 @@ function goodshit(channel, message, params) {
 
   // Sending message
   // if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
-  channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
+  message.reply(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

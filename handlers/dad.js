@@ -9,29 +9,27 @@ const LOG = log4js.getLogger('dad');
  */
 module.exports = {
   name: 'dad',
-  command: 'dad',
+  command: '.dad',
   handler: dad,
 };
 
 const DAD_API = 'https://icanhazdadjoke.com/';
 
-function dad(channel, message, params) {
+function dad(message) {
   const options = {
     uri: DAD_API,
     json: true,
   };
 
-  rp.get(options)
-    .then((joke) => {
-      if (joke.joke) {
-        channel.send(joke.joke);
-      } else {
-        LOG.error(joke);
-        channel.send('Error receiving joke from Dad Central Station');
-      }
-    })
-    .catch((err) => {
-      LOG.error(err);
-      channel.send('Error receiving joke from Dad Central Station');
-    });
+  rp.get(options).then(joke => {
+    if (joke.joke) {
+      message.reply(joke.joke);
+    } else {
+      LOG.error(joke);
+      message.reply('Error receiving joke from Dad Central Station');
+    }
+  }).catch(err => {
+    LOG.error(err);
+    message.reply('Error receiving joke from Dad Central Station');
+  });
 }

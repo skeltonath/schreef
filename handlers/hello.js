@@ -8,6 +8,6 @@ function hello(message) {
 
 module.exports = {
   name: 'hello',
-  command: '.hello',
+  trigger: '.hello',
   handler: hello
 };

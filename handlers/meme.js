@@ -7,7 +7,7 @@ const LOG = log4js.getLogger('meme');
 
 module.exports = {
   name: 'meme',
-  command: '.meme',
+  trigger: '.meme',
   handler: meme,
 };
 

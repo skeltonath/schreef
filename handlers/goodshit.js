@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 module.exports = {
   name: 'goodshit',
-  command: '.gs',
+  trigger: '.gs',
   handler: goodshit,
 };
 

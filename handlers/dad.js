@@ -9,7 +9,7 @@ const LOG = log4js.getLogger('dad');
  */
 module.exports = {
   name: 'dad',
-  command: '.dad',
+  trigger: '.dad',
   handler: dad,
 };
 

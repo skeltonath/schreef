@@ -12,7 +12,7 @@ const LOG = log4js.getLogger('movie');
  */
 module.exports = {
   name: 'movie',
-  command: '.movie',
+  trigger: '.movie',
   handler: movie,
 };
 

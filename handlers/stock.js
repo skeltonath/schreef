@@ -16,7 +16,7 @@ const LOG = log4js.getLogger('stock');
 
 module.exports = {
   name: 'stock',
-  test: '.stock',
+  trigger: '.stock',
   handler: stock,
 };
 

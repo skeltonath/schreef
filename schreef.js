@@ -44,14 +44,14 @@ function handleMessage(message) {
   if (message.author.bot) return;
   
   const handler = handlers.find(h => {
-    const test = h.test;
+    const trigger = h.trigger;
     
-    if (_.isString(test)) {
-      return message.startsWith(test);
+    if (_.isString(trigger)) {
+      return message.startsWith(trigger);
     }
     
-    if (_.isFunction(test)) {
-      return test(message);
+    if (_.isFunction(trigger)) {
+      return trigger(message);
     }
     
     return false;
@@ -60,22 +60,6 @@ function handleMessage(message) {
   if (handler) {
     LOG.info(`Executing ${handler.name} command`);
     handler.handler(message, client);
-  }
-  
-  
-
-  // handle command
-  const args = message.content.match(/^\.(\w+)\s*(.*)$/);
-
-  if (!_.isNull(args)) {
-    const command = args[1];
-    const params = args[2];
-
-    if (_.has(handler, command)) {
-      LOG.info(format('Executing %s command', command));
-      const handler = handler[command];
-      handler(message.channel, message, params);
-    }
   }
 }
 

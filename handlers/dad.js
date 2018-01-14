@@ -23,13 +23,13 @@ function dad(message) {
 
   rp.get(options).then((joke) => {
     if (joke.joke) {
-      message.reply(joke.joke);
+      message.channel.send(joke.joke);
     } else {
       LOG.error(joke);
-      message.reply('Error receiving joke from Dad Central Station');
+      message.channel.send('Error receiving joke from Dad Central Station');
     }
   }).catch((err) => {
     LOG.error(err);
-    message.reply('Error receiving joke from Dad Central Station');
+    message.channel.send('Error receiving joke from Dad Central Station');
   });
 }

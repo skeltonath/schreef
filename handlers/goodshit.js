@@ -99,5 +99,5 @@ function goodshit(message) {
 
   // Sending message
   // if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
-  message.reply(newText.length > 2000 ? newText.substring(0, 2000) : newText);
+  message.channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

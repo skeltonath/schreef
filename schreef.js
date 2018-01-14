@@ -46,7 +46,7 @@ function handleMessage(message) {
     const trigger = h.trigger;
 
     if (_.isString(trigger)) {
-      return message.startsWith(trigger);
+      return message.content.startsWith(trigger);
     }
 
     if (_.isFunction(trigger)) {

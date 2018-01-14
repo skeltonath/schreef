@@ -3,7 +3,7 @@
  */
 
 function hello(message) {
-  message.reply('Hello!');
+  message.channel.send('Hello!');
 }
 
 module.exports = {

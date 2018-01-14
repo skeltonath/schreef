@@ -79,17 +79,17 @@ async function movie(message) {
     .then((movieResponse) => {
       if (movieResponse.Error) {
         const errorMsg = format('Error getting move details from OMBD: %s', movieResponse.Error);
-        message.reply(errorMsg);
+        message.channel.send(errorMsg);
         LOG.error(errorMsg);
         return;
       }
 
-      message.reply(replaceRandomWords(movieResponse.Title, _.startCase(_.toLower(params)), 1));
-      message.reply(replaceRandomWords(movieResponse.Plot, params));
+      message.channel.send(replaceRandomWords(movieResponse.Title, _.startCase(_.toLower(params)), 1));
+      message.channel.send(replaceRandomWords(movieResponse.Plot, params));
     })
     .catch((err) => {
       const errorMsg = format('Error getting move details from OMBD: %s', err);
-      message.reply(errorMsg);
+      message.channel.send(errorMsg);
       LOG.error(errorMsg);
     });
 }

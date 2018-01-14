@@ -31,15 +31,15 @@ function meme(message, client) {
   // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
   if (!MEME_USER) {
     LOG.error('Meme generator username not set!');
-    message.reply('Meme generator username not set!');
+    message.channel.send('Meme generator username not set!');
     return;
   } else if (!MEME_PASSWORD) {
     LOG.error('Meme generator password not set!');
-    message.reply('Meme generator password not set!');
+    message.channel.send('Meme generator password not set!');
     return;
   } else if (!MEMEGENERATOR_API_KEY) {
     LOG.error('Meme generator API key not set!');
-    message.reply('Meme generator API key not set!');
+    message.channel.send('Meme generator API key not set!');
     return;
   }
 
@@ -54,7 +54,7 @@ function meme(message, client) {
     .catch((error) => {
       // For some reason, if we run into an issue when finding the messages, we will let the user know and then use our fallbacks
       LOG.error(error);
-      message.reply('Error getting messages for channel. Using default.');
+      message.channel.send('Error getting messages for channel. Using default.');
     });
 
   // Before we make the macro, we need to query the API and find a generator to use.
@@ -77,24 +77,24 @@ function meme(message, client) {
     rp.get(options)
       .then((meme) => {
         // The API will spit back a bunch of stuff, namely the URL of the macro it just made
-        message.reply(meme.result.instanceImageUrl);
+        message.channel.send(meme.result.instanceImageUrl);
       })
       .catch((error) => {
         // This will catch when we are able to query the generator, but the macro creation fails for some reason
         //     As a fun treat, we can still send the top and bottom text of our meme-to-be to the channel
         LOG.error(error);
-        message.reply("Encountered an error while connecting to the world meme database; we've been set up!");
-        message.reply(_.toUpper(top_text));
-        message.reply(_.toUpper(bottom_text));
+        message.channel.send("Encountered an error while connecting to the world meme database; we've been set up!");
+        message.channel.send(_.toUpper(top_text));
+        message.channel.send(_.toUpper(bottom_text));
       });
   })
     .catch((error) => {
     // The memegenerator API is not reliable, and goes down often enough for it to be a nuisance. This displays when we can't connect
     //     to the generator; usually after the server process times out. Again, we still have messages so we can still send those
       LOG.error(error);
-      message.reply('Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS');
-      message.reply(_.toUpper(top_text));
-      message.reply(_.toUpper(bottom_text));
+      message.channel.send('Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS');
+      message.channel.send(_.toUpper(top_text));
+      message.channel.send(_.toUpper(bottom_text));
     });
 }
 

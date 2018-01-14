@@ -46,7 +46,7 @@ function stock(message) {
   });
 
   if (splitParams[0] === 'help') {
-    message.reply('Command Usage:' + '\n' +
+    message.channel.send('Command Usage:' + '\n' +
             '.reset - Resets you back to 1000$$' + '\n' +
             '.balance - Displays your balance' + '\n' +
             '.allbalances - Displays everyone\'s balance' + '\n' +
@@ -62,7 +62,7 @@ function stock(message) {
   // Get the stock for that user
   if (splitParams[0] === 'balance') {
     getStock(tableSvc, message.author.username, (error, result, response) => {
-      message.reply(`${message.author.username}\'s balance is ${result}$$`);
+      message.channel.send(`${message.author.username}\'s balance is ${result}$$`);
     });
   }
 
@@ -92,17 +92,17 @@ function stock(message) {
               transactionString += `${message.author.username}: ${senderStock} - ${sendAmount} = ${newSenderTotal}\n${recipient}: ${receiverStock} + ${sendAmount} = ${newReceiverTotal}`;
 
               LOG.info(transactionLog);
-              message.reply(transactionString);
+              message.channel.send(transactionString);
             } else {
-              message.reply('Not enough stock to make the transaction.');
+              message.channel.send('Not enough stock to make the transaction.');
             }
           });
         } else {
-          message.reply('That user does not exist! Schreef won\'t throw his stock to the abyss.');
+          message.channel.send('That user does not exist! Schreef won\'t throw his stock to the abyss.');
         }
       });
     } else {
-      message.reply('You can\'t send yourself stock here.');
+      message.channel.send('You can\'t send yourself stock here.');
     }
   }
 }
@@ -139,7 +139,7 @@ function showAllStock(tableSvc, message) {
 
       displayResult = `${displayResult}\nschreef has an infinite amount of stock`;
 
-      message.reply(displayResult);
+      message.channel.send(displayResult);
     } else {
       LOG.error(error);
     }

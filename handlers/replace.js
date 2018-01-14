@@ -24,7 +24,7 @@ function replace(message) {
     flags = flags.trim().toLowerCase();
 
     if (flags.search(/^(g|i|gi|ig)?$/) === -1) {
-      message.reply(`Invalid flags: ${flags}. Only g (global) and i (ignore case) are allowed.`);
+      message.channel.send(`Invalid flags: ${flags}. Only g (global) and i (ignore case) are allowed.`);
       return;
     }
   }
@@ -39,14 +39,14 @@ function replace(message) {
       if (targetMessage) {
         const re = new RegExp(targetStr, flags);
         const newMessage = targetMessage.content.replace(re, replaceStr);
-        message.reply(format('%s ***meant*** to say: %s', targetMessage.author.username, newMessage));
+        message.channel.send(format('%s ***meant*** to say: %s', targetMessage.author.username, newMessage));
       } else {
-        message.reply('No messages containing that string found');
+        message.channel.send('No messages containing that string found');
       }
     })
     .catch((error) => {
       LOG.error(error);
-      message.reply('Error getting messages for channel');
+      message.channel.send('Error getting messages for channel');
     });
 }
 

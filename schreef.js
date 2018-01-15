@@ -3,7 +3,6 @@ const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 const log4js = require('log4js');
-const format = require('format');
 const express = require('express');
 const http = require('http');
 
@@ -23,7 +22,7 @@ log4js.configure('config/log4js-config.json');
 const LOG = log4js.getLogger('main');
 
 // Fields
-const handlerMap = {};
+const handlers = [];
 
 // Functions
 function loadHandlers() {
@@ -33,7 +32,7 @@ function loadHandlers() {
   _.each(files, (file) => {
     /* eslint-disable global-require, import/no-dynamic-require */
     const handler = require(`./handlers/${file}`);
-    handlerMap[handler.command] = handler.handler;
+    handlers.push(handler);
     LOG.info(`Loaded ${handler.name}`);
     /* eslint-enable global-require, import/no-dynamic-require */
   });
@@ -41,20 +40,25 @@ function loadHandlers() {
 
 function handleMessage(message) {
   // if message is from bot, skip
-  if (message.author.id === client.user.id) return;
+  if (message.author.bot) return;
 
-  // handle command
-  const args = message.content.match(/^\.(\w+)\s*(.*)$/);
+  const handler = handlers.find((h) => {
+    const trigger = h.trigger;
 
-  if (!_.isNull(args)) {
-    const command = args[1];
-    const params = args[2];
-
-    if (_.has(handlerMap, command)) {
-      LOG.info(format('Executing %s command', command));
-      const handler = handlerMap[command];
-      handler(message.channel, message, params);
+    if (_.isString(trigger)) {
+      return message.content.startsWith(trigger);
     }
+
+    if (_.isFunction(trigger)) {
+      return trigger(message);
+    }
+
+    return false;
+  });
+
+  if (handler) {
+    LOG.info(`Executing ${handler.name} command`);
+    handler.handler(message, client);
   }
 }
 

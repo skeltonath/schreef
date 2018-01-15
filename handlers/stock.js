@@ -16,16 +16,14 @@ const LOG = log4js.getLogger('stock');
 
 module.exports = {
   name: 'stock',
-  command: 'stock',
+  trigger: '.stock',
   handler: stock,
 };
 
-function stock(channel, message, params) {
-  // Ignore bots
-  if (message.author.bot) return;
-
+function stock(message) {
   // Initialize table service
   const tableSvc = azure.createTableService(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  const params = message.content.slice('.stock'.length).trim();
   const splitParams = params.split(' ');
 
   // Verify the Azure Storage Table exists and create if it doesn't
@@ -68,8 +66,8 @@ function stock(channel, message, params) {
     getStock(tableSvc, message.author.username, (error, result) => {
       const balanceString = `${message.author.username}'s balance is ${result}$$`;
 
-      if (splitParams[1] === 'here' && channel !== null) {
-        channel.send(balanceString);
+      if (splitParams[1] === 'here' && message.channel !== null) {
+        message.channel.send(balanceString);
       } else {
         message.author.send(balanceString);
       }
@@ -79,7 +77,7 @@ function stock(channel, message, params) {
   // Show the stock for all users
   if (splitParams[0] === 'allbalances') {
     if (splitParams[1] === 'here') {
-      showAllStock(tableSvc, channel);
+      showAllStock(tableSvc, message.channel);
     } else {
       showAllStock(tableSvc, message.author);
     }
@@ -91,9 +89,9 @@ function stock(channel, message, params) {
     const sendAmount = parseInt(splitParams[2], 10);
 
     if (sendAmount === 0) {
-      channel.send('Why?');
+      message.channel.send('Why?');
     } else if (sendAmount < 0) {
-      channel.send('You can\'t steal $$ here, fleshbag.');
+      message.channel.send('You can\'t steal $$ here, fleshbag.');
     } else if (recipient !== message.author.username) {
       getStock(tableSvc, recipient, (recieverError, receiverStock) => {
         if (typeof receiverStock === 'number') {
@@ -110,19 +108,19 @@ function stock(channel, message, params) {
               transactionString += `${message.author.username}: ${senderStock} - ${sendAmount} = ${newSenderTotal}\n${recipient}: ${receiverStock} + ${sendAmount} = ${newReceiverTotal}`;
 
               LOG.info(transactionLog);
-              channel.send(transactionString);
+              message.channel.send(transactionString);
             } else {
-              channel.send('Not enough $$ to make the transaction. Get a job.');
+              message.channel.send('Not enough $$ to make the transaction. Get a job.');
               LOG.error(`${senderError}: Sender doesn't exist or doesn't have enough $$ to send`);
             }
           });
         } else {
-          channel.send('Nobody of that name exists or they\'re a bot. Schreef won\'t throw his $$ to the abyss or filthy machines.');
+          message.channel.send('Nobody of that name exists or they\'re a bot. Schreef won\'t throw his $$ to the abyss or filthy machines.');
           LOG.error(`${recieverError}: Recipient doesn't exist.`);
         }
       });
     } else {
-      channel.send('You can\'t send yourself stock. Who do you think you are?');
+      message.channel.send('You can\'t send yourself stock. Who do you think you are?');
     }
   }
 }

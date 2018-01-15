@@ -70,7 +70,7 @@ const GOOD_SHIT_ARRAY = [
 async function goodshit(channel, message, params) {
 
   // Pull messages from cache for fallback if no message is specified
-  const messages = await helpers.getMessages(channel);
+  const messages = await helpers.getMessages(message);
   let fallback = helpers.filterMessages(messages);
   let msgText = params != '' ? params : fallback.content;
   let words = _.words(msgText,  /[^, ]+/g);

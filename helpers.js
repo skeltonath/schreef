@@ -6,16 +6,16 @@ const _       = require('lodash');
 // Using getMessages will automatically use already cached messages when available,
 //     and will fetch more messages only if needed. This way we don't have to rely
 //     on the promise function structure every time we want to retrieve a message
-exports.getMessages = async function getMessages(channel) {
+exports.getMessages = async function getMessages(message) {
 
   // Current messages in the Discord client's cache
-  let cachedMessages = channel.messages.array()[0].channel.messages;
+  let cachedMessages = message.channel.messages.array()[0].channel.messages;
   
   // If there are only a couple of items in the cache...
   if (cachedMessages.array().length < 10) {
-    LOG.info('Fetching messages');
+    LOG.info('Message cache empty for this channel; fetching messages.');
     // Use fetchMessages() to get messages from before we started caching
-    cachedMessages = await channel.fetchMessages({limit: 100});
+    cachedMessages = await message.channel.fetchMessages({limit: 100});
   }
 
   return cachedMessages;

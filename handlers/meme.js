@@ -28,8 +28,9 @@ let generatorID = 45;
 let topText = 'GOOD';
 let bottomText = 'SHIT';
 
-function meme(message, client) {
-  // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
+function meme(message) {
+  // Instead of just throwing a console error or timing out of the values aren't set,
+  //    we can send a message and then quit
   if (!MEME_USER) {
     LOG.error('Meme generator username not set!');
     message.channel.send('Meme generator username not set!');
@@ -45,7 +46,7 @@ function meme(message, client) {
   }
 
   // Pulling messages from the channel to populate the meme
-  //     Limiting search to the last 100 messages (the max for the fetchMessages() function)
+  //    Limiting search to the last 100 messages (the max for the fetchMessages() function)
   message.channel.fetchMessages({ before: message.id, limit: 100 })
     .then((messages) => {
       // Setting the new top and bottom text for the macro

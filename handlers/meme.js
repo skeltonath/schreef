@@ -98,15 +98,9 @@ function meme(message, client) {
     //     usually after the server process times out. Again, we still have messages
     //      so we can still send those
       LOG.error(error);
-<<<<<<< HEAD
       message.channel.send('Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS');
-      message.channel.send(_.toUpper(top_text));
-      message.channel.send(_.toUpper(bottom_text));
-=======
-      channel.send('Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS');
-      channel.send(_.toUpper(topText));
-      channel.send(_.toUpper(bottomText));
->>>>>>> master
+      message.channel.send(_.toUpper(topText));
+      message.channel.send(_.toUpper(bottomText));
     });
 }
 

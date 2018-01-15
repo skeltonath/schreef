@@ -27,7 +27,7 @@ function stock(message) {
   const splitParams = params.split(' ');
 
   // Verify the Azure Storage Table exists and create if it doesn't
-  tableSvc.createTableIfNotExists(TABLENAME, (error, result, response) => {
+  tableSvc.createTableIfNotExists(TABLENAME, (error) => {
     if (!error) {
       // Table exists or created
     } else {
@@ -36,21 +36,23 @@ function stock(message) {
   });
 
   // Verify all users have an account and create new ones for those that don't
-  message.channel.guild.members.forEach((member) => {
-    getStock(tableSvc, member.user.username, (error, result, response) => {
-      if (typeof result !== 'number') {
-        LOG.info(`Setting up new $chreef $tock account for ${member.user.username}`);
-        updateUser(tableSvc, member.user.username, STARTINGSTOCK);
-      }
-    });
+  message.client.users.forEach((member) => {
+    if (!member.bot) {
+      getStock(tableSvc, member.username, (error, result) => {
+        if (typeof result !== 'number') {
+          LOG.info(`Setting up new $chreef $tock account for ${member.username}`);
+          updateUser(tableSvc, member.username, STARTINGSTOCK);
+        }
+      });
+    }
   });
 
   if (splitParams[0] === 'help') {
-    message.channel.send('Command Usage:' + '\n' +
-            '.reset - Resets you back to 1000$$' + '\n' +
-            '.balance - Displays your balance' + '\n' +
-            '.allbalances - Displays everyone\'s balance' + '\n' +
-            '.send [username] [amount] - sends user amount of $$' + '\n');
+    message.author.send(`.stock [params] Command Usage:
+                          reset - Resets you back to 1000$$.
+                          balance [here] - Displays your balance. DM by default, to channel with "here".
+                          allbalances [here] - Displays everyone's balance. DM by default, to channel with "here".
+                          send [username] [amount] - sends user amount of $$.`);
   }
 
   // Reset command to go back to starting stock
@@ -61,29 +63,43 @@ function stock(message) {
 
   // Get the stock for that user
   if (splitParams[0] === 'balance') {
-    getStock(tableSvc, message.author.username, (error, result, response) => {
-      message.channel.send(`${message.author.username}\'s balance is ${result}$$`);
+    getStock(tableSvc, message.author.username, (error, result) => {
+      const balanceString = `${message.author.username}'s balance is ${result}$$`;
+
+      if (splitParams[1] === 'here' && message.channel !== null) {
+        message.channel.send(balanceString);
+      } else {
+        message.author.send(balanceString);
+      }
     });
   }
 
   // Show the stock for all users
   if (splitParams[0] === 'allbalances') {
-    showAllStock(tableSvc, message);
+    if (splitParams[1] === 'here') {
+      showAllStock(tableSvc, message.channel);
+    } else {
+      showAllStock(tableSvc, message.author);
+    }
   }
 
   // Send stock to another user if they have an account
   if (splitParams[0] === 'send') {
     const recipient = splitParams[1];
-    const sendAmount = parseInt(splitParams[2]);
+    const sendAmount = parseInt(splitParams[2], 10);
 
-    if (recipient !== message.author.username) {
-      getStock(tableSvc, recipient, (error, receiverStock, response) => {
+    if (sendAmount === 0) {
+      message.channel.send('Why?');
+    } else if (sendAmount < 0) {
+      message.channel.send('You can\'t steal $$ here, fleshbag.');
+    } else if (recipient !== message.author.username) {
+      getStock(tableSvc, recipient, (recieverError, receiverStock) => {
         if (typeof receiverStock === 'number') {
-          getStock(tableSvc, message.author.username, (error, senderStock, response) => {
-            if ((senderStock - sendAmount) > 0 && typeof senderStock === 'number') {
-              const newSenderTotal = senderStock - sendAmount;
-              const newReceiverTotal = receiverStock + sendAmount;
-              let transactionString = 'Transaction Complete:' + '\n';
+          getStock(tableSvc, message.author.username, (senderError, senderStock) => {
+            if ((senderStock - parseInt(sendAmount, 10)) > 0 && typeof senderStock === 'number') {
+              const newSenderTotal = senderStock - parseInt(sendAmount, 10);
+              const newReceiverTotal = receiverStock + parseInt(sendAmount, 10);
+              let transactionString = 'Transaction Complete:\n';
               const transactionLog = `${message.author.username} sent ${recipient} ${sendAmount}$$`;
 
               updateUser(tableSvc, message.author.username, newSenderTotal);
@@ -94,15 +110,17 @@ function stock(message) {
               LOG.info(transactionLog);
               message.channel.send(transactionString);
             } else {
-              message.channel.send('Not enough stock to make the transaction.');
+              message.channel.send('Not enough $$ to make the transaction. Get a job.');
+              LOG.error(`${senderError}: Sender doesn't exist or doesn't have enough $$ to send`);
             }
           });
         } else {
-          message.channel.send('That user does not exist! Schreef won\'t throw his stock to the abyss.');
+          message.channel.send('Nobody of that name exists or they\'re a bot. Schreef won\'t throw his $$ to the abyss or filthy machines.');
+          LOG.error(`${recieverError}: Recipient doesn't exist.`);
         }
       });
     } else {
-      message.channel.send('You can\'t send yourself stock here.');
+      message.channel.send('You can\'t send yourself stock. Who do you think you are?');
     }
   }
 }
@@ -115,7 +133,7 @@ function updateUser(tableSvc, username, amount) {
     schreefstock: ENTGEN.Int32(amount),
   };
 
-  tableSvc.insertOrReplaceEntity(TABLENAME, userEntry, null, (error, result, response) => {
+  tableSvc.insertOrReplaceEntity(TABLENAME, userEntry, null, (error) => {
     if (!error) {
       // Entity updated
     } else {
@@ -125,11 +143,11 @@ function updateUser(tableSvc, username, amount) {
 }
 
 // Displays everyone's stock
-function showAllStock(tableSvc, message) {
+function showAllStock(tableSvc, channel) {
   const query = new azure.TableQuery().where('RowKey eq ?', '1');
   let displayResult = 'Full ledger: ';
 
-  tableSvc.queryEntities(TABLENAME, query, null, (error, result, response) => {
+  tableSvc.queryEntities(TABLENAME, query, null, (error, result) => {
     if (!error) {
       // query successful
       result.entries.forEach((entry) => {
@@ -139,7 +157,7 @@ function showAllStock(tableSvc, message) {
 
       displayResult = `${displayResult}\nschreef has an infinite amount of stock`;
 
-      message.channel.send(displayResult);
+      channel.send(displayResult);
     } else {
       LOG.error(error);
     }
@@ -155,7 +173,7 @@ function getStock(tableSvc, username, callback) {
     if (!error) {
       // query successful
       if (result.entries.length > 0) {
-        callback(error, result.entries[0].schreefstock._, response);
+        callback(error, parseInt(result.entries[0].schreefstock._, 10), response);
       } else {
         callback(error, null, response);
       }

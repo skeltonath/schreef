@@ -1,7 +1,4 @@
-const log4js = require('log4js');
-const LOG    = log4js.getLogger('roll');
-const Roll = require("roll");
-
+const Roll = require('roll');
 
 module.exports = {
   name: 'roll',
@@ -22,8 +19,8 @@ function roll(message) {
     message.channel.send(`"${params}" is not a valid input. For more information, see https://github.com/troygoode/node-roll`);
   } else {
     const result = roller.roll(params);
-    
-    // show the end result as well as the dice rolled 
+
+    // show the end result as well as the dice rolled
     message.channel.send(`**${message.author.username}** rolled: *${result.rolled}*. Result: **${result.result}**`);
   }
 }

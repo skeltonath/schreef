@@ -4,8 +4,6 @@ const log4js  = require('log4js');
 const helpers = require('../util/helpers.js');
 const Discord = require('discord.js');
 const LOG     = log4js.getLogger('meme');
-const fs      = require("fs");
-const stream  = require("stream");
 
 module.exports = {
   name: 'meme',

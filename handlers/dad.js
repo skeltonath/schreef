@@ -1,5 +1,5 @@
-const rp      = require('request-promise');
-const log4js  = require('log4js');
+const rp = require('request-promise');
+const log4js = require('log4js');
 
 const LOG = log4js.getLogger('dad');
 
@@ -9,30 +9,27 @@ const LOG = log4js.getLogger('dad');
  */
 module.exports = {
   name: 'dad',
-  command: 'dad',
-  handler: dad
+  trigger: '.dad',
+  handler: dad,
 };
 
 const DAD_API = 'https://icanhazdadjoke.com/';
 
-function dad(channel, message, params) {
-
-let options = {
+function dad(message) {
+  const options = {
     uri: DAD_API,
-    json: true
+    json: true,
   };
 
-  rp.get(options)
-    .then(joke => {
-      if(joke.joke){
-        channel.send(joke.joke);
-      } else {
-        LOG.error(joke);
-        channel.send('Error receiving joke from Dad Central Station');
-      }
-    })
-    .catch(err =>{
-      LOG.error(err);
-      channel.send('Error receiving joke from Dad Central Station');
-    });
+  rp.get(options).then((joke) => {
+    if (joke.joke) {
+      message.channel.send(joke.joke);
+    } else {
+      LOG.error(joke);
+      message.channel.send('Error receiving joke from Dad Central Station');
+    }
+  }).catch((err) => {
+    LOG.error(err);
+    message.channel.send('Error receiving joke from Dad Central Station');
+  });
 }

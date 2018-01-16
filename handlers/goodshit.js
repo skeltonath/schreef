@@ -6,11 +6,11 @@ const helpers = require('../util/helpers.js');
 
 module.exports = {
   name: 'goodshit',
-  command: 'gs',
-  handler: goodshit
+  trigger: '.gs',
+  handler: goodshit,
 };
 
-//some go౦ԁ sHit that we want to randomly pull from
+// some go౦ԁ sHit that we want to randomly pull from
 const GOOD_SHIT_ARRAY = [
   'good shit',
   '(chorus: ʳᶦᵍʰᵗ ᵗʰᵉʳᵉ)',
@@ -63,30 +63,29 @@ const GOOD_SHIT_ARRAY = [
   'n౦౦t no౦t',
   '౦h yes',
   'good 🅱hit',
-  'my 🅱igga'
+  'my 🅱igga',
 ];
 
 // Only param to retrieve is the message text; anything after the command
-async function goodshit(channel, message, params) {
+async function goodshit(message) {
 
   // Pull messages from cache for fallback if no message is specified
   const messages = await helpers.getMessages(message);
-  let fallback = helpers.randomUserMessage(messages);
-  let msgText = params != '' ? params : fallback.content;
-  let words = _.words(msgText,  /[^, ]+/g);
+  const fallback = helpers.randomUserMessage(messages);
+  const msgText = params != '' ? params : fallback.content;
+  const words = _.words(msgText,  /[^, ]+/g);
 
-  let newWords = [];
+  const newWords = [];
 
   // For every word in the message...
-  _.each(words, function(word) {
-
+  _.each(words, (word) => {
     // Get some random numbers to figure out how many go౦ԁ sHits to put before and after the word
-    let goodshitBefore = _.random(0, 2);
-    let goodshitAfter = _.random(0, 3);
+    const goodshitBefore = _.random(0, 2);
+    const goodshitAfter = _.random(0, 3);
 
     // Before the word, put a random selection from the go౦ԁ sHit array, a random number of times
-    _.each(_.range(goodshitBefore), function() {
-      let goodshitText = _.sample(GOOD_SHIT_ARRAY);
+    _.each(_.range(goodshitBefore), () => {
+      const goodshitText = _.sample(GOOD_SHIT_ARRAY);
       newWords.push(goodshitText);
     });
 
@@ -96,15 +95,16 @@ async function goodshit(channel, message, params) {
     newWords.push('👌');
 
     // Random sampling after the word
-    _.each(_.range(goodshitAfter), function() {
-      let goodshitText = _.sample(GOOD_SHIT_ARRAY);
+    _.each(_.range(goodshitAfter), () => {
+      const goodshitText = _.sample(GOOD_SHIT_ARRAY);
       newWords.push(goodshitText);
     });
   });
 
   // stick all the words together
-  let newText = newWords.join(' ');
+  const newText = newWords.join(' ');
 
-  // Sending message; if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
-  channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
+  // Sending message
+  // if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
+  message.channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

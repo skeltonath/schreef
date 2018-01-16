@@ -2,13 +2,12 @@ const _       = require('lodash');
 const rp      = require('request-promise');
 const log4js  = require('log4js');
 const helpers = require('../util/helpers.js');
-const Discord = require('discord.js');
 const LOG     = log4js.getLogger('meme');
 
 module.exports = {
   name: 'meme',
-  command: 'meme',
-  handler: meme
+  trigger: '.meme',
+  handler: meme,
 };
 
 // Imgflip requires a username and password belonging to the key owner
@@ -18,19 +17,19 @@ const API_URL = 'http://version1.api.memegenerator.net//Instance_Create';
 let MEME_IMAGES = null;
 
 // Default top and bottom text in case we aren't able to pull suitable candidates from chat
-let top_text = 'GOOD';
-let bottom_text = 'SHIT';
+let topText = 'GOOD';
+let bottomText = 'SHIT';
 
-async function meme(channel, message, params) {
+async function meme(message) {
 
   // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
   if(!MEME_USER){
     LOG.error('Meme generator username not set!');
-    channel.send('Meme generator username not set!');
+    message.channel.send('Meme generator username not set!');
     return;
-  } else if(!MEME_PASSWORD){
+  } else if (!MEME_PASSWORD) {
     LOG.error('Meme generator password not set!');
-    channel.send('Meme generator password not set!');
+    message.channel.send('Meme generator password not set!');
     return;
   }
 

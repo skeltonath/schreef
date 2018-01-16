@@ -2,7 +2,10 @@ const _       = require('lodash');
 const rp      = require('request-promise');
 const log4js  = require('log4js');
 const helpers = require('../helpers.js');
+const Discord = require('discord.js');
 const LOG     = log4js.getLogger('meme');
+const fs      = require("fs");
+const stream  = require("stream");
 
 module.exports = {
   name: 'meme',
@@ -10,18 +13,11 @@ module.exports = {
   handler: meme
 };
 
-// Memegenerator requires an API key as well as the username and password belonging to the key owner
-const MEMEGENERATOR_API_KEY = process.env.MEMEGENERATOR_API_KEY;
+// Imgflip requires a username and password belonging to the key owner
 const MEME_USER = process.env.MEME_USER;
 const MEME_PASSWORD = process.env.MEME_PASSWORD;
 const API_URL = 'http://version1.api.memegenerator.net//Instance_Create';
-let MEME_GENERATORS = null;
-
-// Language tagging; for browsing purposes on the memegenerator site
-const languageCode = 'en';
-
-// The meme "generator" is actually the background image that is used for the macro. Defaulting to insanity wolf
-let generatorID = 45;
+let MEME_IMAGES = null;
 
 // Default top and bottom text in case we aren't able to pull suitable candidates from chat
 let top_text = 'GOOD';
@@ -38,57 +34,53 @@ async function meme(channel, message, params) {
     LOG.error('Meme generator password not set!');
     channel.send('Meme generator password not set!');
     return;
-  } else if(!MEMEGENERATOR_API_KEY){
-    LOG.error('Meme generator API key not set!');
-    channel.send('Meme generator API key not set!');
-    return;
   }
 
   
   const messages = await helpers.getMessages(message);
-  top_text = helpers.filterMessages(messages);
-  bottom_text = helpers.filterMessages(messages);
+  top_text = helpers.filterMessages(messages).content;
+  bottom_text = helpers.filterMessages(messages).content;
 
-  // Before we make the macro, we need to query the API and find a generator to use.
-  //     If we've already god cached generator results, we skip this step.
-  //     The meme "generator" is actually the background image that is used for the macro.
-  //     We query the API for the current top 25 most popular generator images (25 is the max),
-  //     and then randomly choose one of those to use.
-  if (!MEME_GENERATORS) {
-    LOG.info("Fetching meme generators");
+  // Before we make the macro, we need to query the API and find an image to use.
+  //     If we've already got cached generator results, we skip this step.
+
+  if (!MEME_IMAGES) {
+    LOG.info("Fetching & caching meme images");
     const generatorOptions = {
-      uri: `http://version1.api.memegenerator.net//Generators_Select_ByPopular?pageIndex=0&pageSize=25&days=&apiKey=${MEMEGENERATOR_API_KEY}`,
+      uri: `https://api.imgflip.com/get_memes`,
       json: true
     };
-    MEME_GENERATORS = await rp.get(generatorOptions).catch(error => {
-      // The memegenerator API is not reliable, and goes down often enough for it to be a nuisance. This displays when we can't connect
-      //     to the generator; usually after the server process times out. Again, we still have messages so we can still send those
+    MEME_IMAGES = await rp.get(generatorOptions).catch(error => {
+      // Message if we can't connect to the API for some reason
       LOG.error(error);
-      channel.send("Error retrieving meme generators from His Excellency, President for Life, Field Marshal Gaylord K. Memelord, VC, DSO, MC, Eternal Ruler of Heaven, Earth and the Interwebz, and All Creatures Who Crawl Swim and Fly Upon It, Past, Present and Future, In This and Any Other Dimension, Conqueror of the British Empire in Africa in General and Uganda in Particular, DDS");
-      channel.send(_.toUpper(top_text));
-      channel.send(_.toUpper(bottom_text));
+      channel.send("Encountered an error while connecting to the world meme database.");
       return;
     });
   }
-  generatorID = _.sample(MEME_GENERATORS.result).generatorID;
+  const memeImage = _.sample(MEME_IMAGES['data']['memes']);
 
-  // Now that we've gotten a generator, we can send our options to the meme forge and build our dark creation
-  const uri = `${API_URL}?apiKey=${MEMEGENERATOR_API_KEY}&generatorID=${generatorID}&languageCode=${languageCode}&text0=${top_text}&text1=${bottom_text}&username=${MEME_USER}&password=${MEME_PASSWORD}`;
+  // Now that we've gotten an image, we can send our options to the meme forge and build our dark creation
+  const uri = `https://api.imgflip.com/caption_image`;
   const options = {
     uri: uri,
-    json: true
+    json: true,
+    qs: {
+      username: MEME_USER,
+      password: MEME_PASSWORD,
+      text0: top_text,
+      text1: bottom_text,
+      template_id: memeImage['id']
+    },
   };
   rp.get(options)
     .then(meme => {
       // The API will spit back a bunch of stuff, namely the URL of the macro it just made
-      channel.send(meme.result.instanceImageUrl);
+      channel.send(meme['data']['url']);
     })
     .catch(error =>{
       // This will catch when we are able to query the generator, but the macro creation fails for some reason
       //     As a fun treat, we can still send the top and bottom text of our meme-to-be to the channel
       LOG.error(error);
-      channel.send("Encountered an error while connecting to the world meme database; we've been set up!");
-      channel.send(_.toUpper(top_text));
-      channel.send(_.toUpper(bottom_text));
+      channel.send("Encountered an error while connecting to the world meme database.");
     });
 }

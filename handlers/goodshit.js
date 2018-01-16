@@ -2,7 +2,7 @@ const _      = require('lodash');
 const log4js = require('log4js');
 const format = require('format');
 const LOG = log4js.getLogger('goodshit');
-const helpers = require('../helpers.js');
+const helpers = require('../util/helpers.js');
 
 module.exports = {
   name: 'goodshit',
@@ -71,7 +71,7 @@ async function goodshit(channel, message, params) {
 
   // Pull messages from cache for fallback if no message is specified
   const messages = await helpers.getMessages(message);
-  let fallback = helpers.filterMessages(messages);
+  let fallback = helpers.randomUserMessage(messages);
   let msgText = params != '' ? params : fallback.content;
   let words = _.words(msgText,  /[^, ]+/g);
 

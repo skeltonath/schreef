@@ -9,7 +9,7 @@ const _       = require('lodash');
 exports.getMessages = async function getMessages(message) {
 
   // Current messages in the Discord client's cache
-  let cachedMessages = message.channel.messages.array()[0].channel.messages;
+  let cachedMessages = message.channel.messages;
   
   // If there are only a couple of items in the cache...
   if (cachedMessages.array().length < 10) {
@@ -24,9 +24,9 @@ exports.getMessages = async function getMessages(message) {
 
 // Randomly look through all results until we get a message that 
 //     isnt bot generated or a bot command
-exports.filterMessages = function filterMessage(messages) {
+exports.randomUserMessage = function filterMessage(messages) {
   // Shuffle messages first
-  let newMessages = shuffle(messages.array());
+  let newMessages = _.shuffle(messages.array());
   
   // Default to first message
   let found = newMessages[0];
@@ -47,9 +47,3 @@ exports.getEmoji = function getEmoji(emoji) {
 
   });
 }
-
-// Simple array shuffle
-function shuffle(o) {
-  for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-  return o;
-};

@@ -1,7 +1,7 @@
 const _       = require('lodash');
 const rp      = require('request-promise');
 const log4js  = require('log4js');
-const helpers = require('../helpers.js');
+const helpers = require('../util/helpers.js');
 const Discord = require('discord.js');
 const LOG     = log4js.getLogger('meme');
 const fs      = require("fs");
@@ -38,8 +38,8 @@ async function meme(channel, message, params) {
 
   
   const messages = await helpers.getMessages(message);
-  top_text = helpers.filterMessages(messages).content;
-  bottom_text = helpers.filterMessages(messages).content;
+  top_text = helpers.randomUserMessage(messages).content;
+  bottom_text = helpers.randomUserMessage(messages).content;
 
   // Before we make the macro, we need to query the API and find an image to use.
   //     If we've already got cached generator results, we skip this step.

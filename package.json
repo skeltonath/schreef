@@ -32,7 +32,8 @@
     "moment-timezone": "^0.4.1",
     "promise": "^7.0.4",
     "request": "^2.60.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "roll": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "^4.15.0",

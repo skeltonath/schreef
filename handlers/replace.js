@@ -8,7 +8,7 @@ const LOG = log4js.getLogger('replace');
  */
 module.exports = {
   name: 'replace',
-  trigger: '.r',
+  trigger: '.r ',
   handler: replace,
 };
 

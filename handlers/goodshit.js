@@ -1,4 +1,8 @@
-const _ = require('lodash');
+const _      = require('lodash');
+const log4js = require('log4js');
+const format = require('format');
+const LOG = log4js.getLogger('goodshit');
+const helpers = require('../util/helpers.js');
 
 module.exports = {
   name: 'goodshit',
@@ -63,10 +67,13 @@ const GOOD_SHIT_ARRAY = [
 ];
 
 // Only param to retrieve is the message text; anything after the command
-function goodshit(message) {
-  const params = message.content.slice('.gs'.length).trim();
-  const msgText = params !== '' ? params : 'good shit good shit good shit';
-  const words = _.words(msgText, /[^, ]+/g);
+async function goodshit(message) {
+
+  // Pull messages from cache for fallback if no message is specified
+  const messages = await helpers.getMessages(message);
+  const fallback = helpers.randomUserMessage(messages);
+  const msgText = params != '' ? params : fallback.content;
+  const words = _.words(msgText,  /[^, ]+/g);
 
   const newWords = [];
 

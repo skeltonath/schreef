@@ -20,7 +20,7 @@ yarn install
 
 Schreef requires that some environment variables be set in order to run, most importantly `DISCORD_API_KEY`.
 In production, we set these using config vars provided by Heroku.
-Locally, we use the [dotenv package](https://github.com/motdotla/dotenv). To use dotenv locally, create a `.env` file in the root directory, and fill it with environment variables that need to be set.
+Locally, we use the [dotenv package](https://github.com/motdotla/dotenv). To use dotenv locally, change the  `.env.EXAMPLE` file in the root directory to `.env`, and fill it with environment variables that need to be set.
 
 ```
 DISCORD_API_KEY=<discord api token>

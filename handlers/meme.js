@@ -50,7 +50,7 @@ async function meme(message) {
     MEME_IMAGES = await rp.get(generatorOptions).catch(error => {
       // Message if we can't connect to the API for some reason
       LOG.error(error);
-      channel.send("Encountered an error while connecting to the world meme database.");
+      message.channel.send("Encountered an error while connecting to the world meme database.");
       return;
     });
   }
@@ -72,12 +72,12 @@ async function meme(message) {
   rp.get(options)
     .then(meme => {
       // The API will spit back a bunch of stuff, namely the URL of the macro it just made
-      channel.send(meme['data']['url']);
+      message.channel.send(meme['data']['url']);
     })
     .catch(error =>{
       // This will catch when we are able to query the generator, but the macro creation fails for some reason
       //     As a fun treat, we can still send the top and bottom text of our meme-to-be to the channel
       LOG.error(error);
-      channel.send("Encountered an error while connecting to the world meme database.");
+      message.channel.send("Encountered an error while connecting to the world meme database.");
     });
 }

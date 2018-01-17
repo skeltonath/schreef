@@ -19,7 +19,7 @@ let MEME_IMAGES = null;
 // Default top and bottom text in case we aren't able to pull suitable candidates from chat
 let topText = 'GOOD';
 let bottomText = 'SHIT';
-
+const messageOptions = {'naturalLanguage': true, 'replaceCustomEmojis' : true, 'removeEmojis' : true};
 async function meme(message) {
 
   // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
@@ -35,8 +35,11 @@ async function meme(message) {
 
   
   const messages = await helpers.getMessages(message);
-  top_text = helpers.randomUserMessage(messages).content;
-  bottom_text = helpers.randomUserMessage(messages).content;
+  top_text = helpers.randomUserMessage(messages, messageOptions);
+  bottom_text = helpers.randomUserMessage(messages, messageOptions);
+
+  top_text = helpers.replaceUsernames(top_text).content;
+  bottom_text = helpers.replaceUsernames(bottom_text).content;
 
   // Before we make the macro, we need to query the API and find an image to use.
   //     If we've already got cached generator results, we skip this step.

@@ -1,0 +1,11 @@
+version: '2'
+services:
+  bot:
+    build: .
+    command: nodemon -L /usr/app/schreef.js
+    volumes:
+      - .:/usr/app
+      - /usr/app/node_modules
+    env_file: .env
+    environment:
+      - NODE_ENV=development

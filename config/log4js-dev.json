@@ -1,0 +1,11 @@
+{
+  "appenders": [
+    {
+      "type": "console"
+    }
+  ],
+  "levels": {
+    "[all]": "ALL"
+  },
+  "replaceConsole": true
+}

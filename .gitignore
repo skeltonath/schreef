@@ -3,3 +3,4 @@ logs/
 *.swp
 .env
 /.vs/
+.DS_STORE

@@ -1,8 +1,12 @@
-const _ = require('lodash');
+const _      = require('lodash');
+const log4js = require('log4js');
+const format = require('format');
+const LOG = log4js.getLogger('goodshit');
+const helpers = require('../util/helpers.js');
 
 module.exports = {
   name: 'goodshit',
-  command: 'gs',
+  trigger: '.gs',
   handler: goodshit,
 };
 
@@ -63,9 +67,13 @@ const GOOD_SHIT_ARRAY = [
 ];
 
 // Only param to retrieve is the message text; anything after the command
-function goodshit(channel, message, params) {
-  const msgText = params !== '' ? params : 'good shit good shit good shit';
-  const words = _.words(msgText, /[^, ]+/g);
+async function goodshit(message) {
+
+  // Pull messages from cache for fallback if no message is specified
+  const messages = await helpers.getMessages(message);
+  const fallback = helpers.randomUserMessage(messages);
+  const msgText = params != '' ? params : fallback.content;
+  const words = _.words(msgText,  /[^, ]+/g);
 
   const newWords = [];
 
@@ -98,5 +106,5 @@ function goodshit(channel, message, params) {
 
   // Sending message
   // if the message is longer than 2000 characters, we have to slice it to fit Discord's limit
-  channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
+  message.channel.send(newText.length > 2000 ? newText.substring(0, 2000) : newText);
 }

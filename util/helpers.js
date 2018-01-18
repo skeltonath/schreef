@@ -1,8 +1,10 @@
 const log4js  = require('log4js');
 const LOG     = log4js.getLogger('helpers');
+const DEBUG = log4js.getLogger('debug');
 const format  = require('format');
 const _       = require('lodash');
 const emojiRegex = require('emoji-regex');
+const isDebug = process.env.MEME_USER;
 
 // Using getMessages will automatically use already cached messages when available,
 //     and will fetch more messages only if needed. This way we don't have to rely
@@ -14,10 +16,9 @@ exports.getMessages = async function getMessages(message) {
   
   // If there are only a couple of items in the cache...
   if (cachedMessages.array().length < 20) {
-    // LOG.info('Message cache empty for this channel; fetching messages.');
+
     // Use fetchMessages() to get messages from before we started caching
     cachedMessages = await message.channel.fetchMessages({limit: 100});
-    // LOG.info('Caching complete. Now storing ' + cachedMessages.array().length + ' messages.');
   }
 
   return cachedMessages;
@@ -27,6 +28,8 @@ exports.getMessages = async function getMessages(message) {
 // Randomly look through all results until we get a message that 
 //     isnt bot generated, isn't a bot command, and the message content isn't blank
 exports.randomUserMessage = function filterMessage(messages, options = {}) {
+  exports.debug('Getting random user message');
+
   // Shuffle messages first
   let newMessages = _.shuffle(messages.array());
   // Default to first message
@@ -43,11 +46,15 @@ exports.randomUserMessage = function filterMessage(messages, options = {}) {
     // Checks to see if message meets any of the following conditions: 
     //    - Consists wholly of a URL
     if (options['naturalLanguage']) {
+      exports.debug(`Checking "${found.content}" for natural language`);
+
       const urlTest = new RegExp(/(https?:\/\/[^\s]+)/g);
       let foundUrlTest = found.content.replace(urlTest, function(match){return match.replace(urlTest,'')});
       if (foundUrlTest === '') {
+        exports.debug(`"${found.content}" does not pass natural language test`);
         isNatural = false;
       } else {
+        exports.debug(`"${found.content}" passes natural language test`);
         isNatural = true;
       }
     }
@@ -59,9 +66,11 @@ exports.randomUserMessage = function filterMessage(messages, options = {}) {
 
     // Removing normal unicode emojis
     if (options['removeEmojis']) {
-      LOG.info('Filtering ' + found.content);
       found.content = exports.removeEmojis(found.content);
-      LOG.info('Result: ' + found.content);
+    }
+
+    if (options['replaceUsernames']) {
+      found = exports.replaceUsernames(found);
     }
 
     i++;
@@ -72,10 +81,12 @@ exports.randomUserMessage = function filterMessage(messages, options = {}) {
     }
   }
 
+  exports.debug([`Returning found message: "${found.content}"`, found]);
   return found;
 }
 
 exports.replaceUsernames = function replaceUsername(message) {
+  exports.debug(`Replacing username references in "${message.content}"`);
   // Matching strings that look like '<@3478942738932>'
   const userTest = new RegExp(/<@\d+>/, 'g');
 
@@ -87,12 +98,13 @@ exports.replaceUsernames = function replaceUsername(message) {
     // Look up referenced user by id and replace with username
     return message.mentions.users.find('id', match).username
   });
+  exports.debug(`Returning "${message.content}"`);
   return message;
 }
 
 // Removing standard unicode emojis
 exports.removeEmojis = function removeEmojis(messageText) {
-  LOG.info("Checking message: " + messageText);
+  exports.debug(`Checking "${messageText}" for standard Unicode emojis`);
   const regex = emojiRegex();
   const emojiMatches = messageText.match(regex);
   if (emojiMatches) {
@@ -100,22 +112,30 @@ exports.removeEmojis = function removeEmojis(messageText) {
       messageText = messageText.replace(match, '');
     });
   }
+  exports.debug(`Returning "${messageText}"`);
   return messageText;
 }
 
 // Replacing Discord custom emojis with just the name of the emoji
-exports.replaceCustomEmojis = function replaceCustomEmojis(message) {
+exports.replaceCustomEmojis = function replaceCustomEmojis(messageText) {
+  exports.debug(`Checking "${messageText}" for custom Discord emojis`);
  // Matching strings that look like '<:emojiname:3478942738932>'
   const emojiTest = new RegExp(/<:\w+:\d+>/, 'g');
 
   // Looping through the message and replacing all instances of username references
-  const emojiMatches = message.match(emojiTest);
+  const emojiMatches = messageText.match(emojiTest);
   if (emojiMatches) {
     emojiMatches.forEach(function(match){
       let emoji = match.replace('<:','').replace(/:\d+/, '').replace('>', '');
-      message = message.replace(match, emoji);
+      messageText = messageText.replace(match, emoji);
     });
   }
-  
-  return message; 
+  exports.debug(`Returning "${messageText}"`);
+  return messageText; 
+}
+
+exports.debug = function debug(message) {
+  if (isDebug) {
+    DEBUG.info(message);
+  }
 }

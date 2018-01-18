@@ -69,6 +69,7 @@ const GOOD_SHIT_ARRAY = [
 // Only param to retrieve is the message text; anything after the command
 async function goodshit(message) {
 
+  const params = message.content.slice('.gs'.length).trim();
   // Pull messages from cache for fallback if no message is specified
   const messages = await helpers.getMessages(message);
   const fallback = helpers.randomUserMessage(messages);

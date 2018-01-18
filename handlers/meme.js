@@ -19,7 +19,7 @@ let MEME_IMAGES = null;
 // Default top and bottom text in case we aren't able to pull suitable candidates from chat
 let topText = 'GOOD';
 let bottomText = 'SHIT';
-const messageOptions = {'naturalLanguage': true, 'replaceCustomEmojis' : true, 'removeEmojis' : true};
+const messageOptions = {'naturalLanguage': true, 'replaceCustomEmojis' : true, 'removeEmojis' : true, 'replaceUsernames': true};
 async function meme(message) {
 
   // Instead of just throwing a console error or timing out of the values aren't set, we can send a message and then quit
@@ -35,17 +35,14 @@ async function meme(message) {
 
   
   const messages = await helpers.getMessages(message);
-  top_text = helpers.randomUserMessage(messages, messageOptions);
-  bottom_text = helpers.randomUserMessage(messages, messageOptions);
-
-  top_text = helpers.replaceUsernames(top_text).content;
-  bottom_text = helpers.replaceUsernames(bottom_text).content;
+  topText = helpers.randomUserMessage(messages, messageOptions).content;
+  bottomText = helpers.randomUserMessage(messages, messageOptions).content;
 
   // Before we make the macro, we need to query the API and find an image to use.
   //     If we've already got cached generator results, we skip this step.
 
   if (!MEME_IMAGES) {
-    LOG.info("Fetching & caching meme images");
+    helpers.debug(`Fetching and caching meme images`);
     const generatorOptions = {
       uri: `https://api.imgflip.com/get_memes`,
       json: true
@@ -58,7 +55,7 @@ async function meme(message) {
     });
   }
   const memeImage = _.sample(MEME_IMAGES['data']['memes']);
-
+  helpers.debug([`Using meme image: `, memeImage]);
   // Now that we've gotten an image, we can send our options to the meme forge and build our dark creation
   const uri = `https://api.imgflip.com/caption_image`;
   const options = {
@@ -67,14 +64,16 @@ async function meme(message) {
     qs: {
       username: MEME_USER,
       password: MEME_PASSWORD,
-      text0: top_text,
-      text1: bottom_text,
+      text0: topText,
+      text1: bottomText,
       template_id: memeImage['id']
     },
   };
+  helpers.debug([`Sending meme creation request to ${uri} with parameters: `, options]);
   rp.get(options)
     .then(meme => {
       // The API will spit back a bunch of stuff, namely the URL of the macro it just made
+      helpers.debug(`Returned image: ${meme['data']['url']}`);
       message.channel.send(meme['data']['url']);
     })
     .catch(error =>{

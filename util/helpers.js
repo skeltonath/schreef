@@ -34,7 +34,7 @@ exports.randomUserMessage = function filterMessage(messages, options = {}) {
   // Default to first message
   let found = null;
 
-  // Go through all messages until we find a suitable math
+  // Go through all messages until we find a suitable match
   let i = 0;
   let isNatural = true;
 

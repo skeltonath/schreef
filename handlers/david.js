@@ -1,7 +1,5 @@
 const _      = require('lodash');
-const log4js = require('log4js');
 const format = require('format');
-const LOG = log4js.getLogger('david');
 const helpers = require('../util/helpers.js');
 
 module.exports = {
@@ -31,7 +29,7 @@ async function david(message) {
 
   words.push(Math.random() > .5 ? "lol" : "haha");
   const davidifiedString = words.join(" ");
-  message.channel.send(davidifiedString);
+  message.channel.send("David: " + davidifiedString);
 }
 
 function getRandomModifier() {
@@ -49,10 +47,11 @@ function getRandomModifier() {
   }
 }
 
+// randomly swaps position of two adjacent characters
 function scramble(word) {
   helpers.debug("Scrambling word: " + word);
   let newWord = "";
-  for (let i = 0; i < word.length - 1; i++) {
+  for (let i = 0; i < word.length - 1; i += 2) {
     let random = Math.random();
     if (random < config.scrambleChance) {
       newWord += word.charAt(i + 1);

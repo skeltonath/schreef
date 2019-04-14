@@ -86,15 +86,24 @@ exports.randomUserMessage = function filterMessage(messages, options = {}) {
 exports.replaceUsernames = function replaceUsername(message) {
   exports.debug(`Replacing username references in "${message.content}"`);
   // Matching strings that look like '<@3478942738932>'
-  const userTest = new RegExp(/<@\d+>/, 'g');
+  const userTest = new RegExp(/<@!?(\d+)>/, 'g');
 
   // Looping through the message and replacing all instances of username references
   message.content = message.content.replace(userTest, (match) => {
-    // Could be done with substrings but this is easier to read
-    match = match.replace('<@', '').replace('>', '');
-
-    // Look up referenced user by id and replace with username
-    return message.mentions.users.find('id', match).username;
+    const id = userTest.exec(match)[1];
+    const user = message.guild.members.find('id', id);
+    if (user) {
+      if (user.nickname) {
+        // If the user has a nickname set, return that.
+        return user.nickname;
+      } else {
+        // Otherwise, return their username
+        return user.user.username;
+      }
+    } else {
+      // We couldn't find that user in this guild, so just return the base text
+      return match;
+    }
   });
   exports.debug(`Returning "${message.content}"`);
   return message;

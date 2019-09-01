@@ -18,7 +18,11 @@ app.listen(port);
 require('dotenv').config();
 
 // Configure log4js
-log4js.configure('config/log4js-config.json');
+if (process.env.NODE_ENV === 'development') {
+  log4js.configure('config/log4js-dev.json');
+} else {
+  log4js.configure('config/log4js-prod.json');
+}
 const LOG = log4js.getLogger('main');
 
 // Fields
